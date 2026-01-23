@@ -1,0 +1,172 @@
+{"frames": [
+
+{
+	"filename": "Button Auto Spin Hover.png",
+	"frame": {"x":0,"y":0,"w":135,"h":134},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":135,"h":134},
+	"sourceSize": {"w":135,"h":134}
+},
+{
+	"filename": "Button Auto Spin Normal.png",
+	"frame": {"x":135,"y":0,"w":135,"h":134},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":135,"h":134},
+	"sourceSize": {"w":135,"h":134}
+},
+{
+	"filename": "Button Info Hover.png",
+	"frame": {"x":270,"y":0,"w":113,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":111},
+	"sourceSize": {"w":113,"h":111}
+},
+{
+	"filename": "Button Info Normal.png",
+	"frame": {"x":383,"y":0,"w":113,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":111},
+	"sourceSize": {"w":113,"h":111}
+},
+{
+	"filename": "Button Max Bet Hover.png",
+	"frame": {"x":0,"y":134,"w":135,"h":134},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":135,"h":134},
+	"sourceSize": {"w":135,"h":134}
+},
+{
+	"filename": "Button Max Bet Normal.png",
+	"frame": {"x":135,"y":134,"w":135,"h":134},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":135,"h":134},
+	"sourceSize": {"w":135,"h":134}
+},
+{
+	"filename": "Button Menu Hover.png",
+	"frame": {"x":270,"y":134,"w":113,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":111},
+	"sourceSize": {"w":113,"h":111}
+},
+{
+	"filename": "Button Menu Normal.png",
+	"frame": {"x":383,"y":134,"w":113,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":111},
+	"sourceSize": {"w":113,"h":111}
+},
+{
+	"filename": "Button Rules Hover.png",
+	"frame": {"x":0,"y":268,"w":113,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":111},
+	"sourceSize": {"w":113,"h":111}
+},
+{
+	"filename": "Button Rules Normal.png",
+	"frame": {"x":113,"y":268,"w":113,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":111},
+	"sourceSize": {"w":113,"h":111}
+},
+{
+	"filename": "Button Settings Hover.png",
+	"frame": {"x":226,"y":268,"w":113,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":111},
+	"sourceSize": {"w":113,"h":111}
+},
+{
+	"filename": "Button Settings Normal.png",
+	"frame": {"x":339,"y":268,"w":113,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":111},
+	"sourceSize": {"w":113,"h":111}
+},
+{
+	"filename": "Button Spin Hover.png",
+	"frame": {"x":0,"y":379,"w":212,"h":134},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":212,"h":134},
+	"sourceSize": {"w":212,"h":134}
+},
+{
+	"filename": "Button Spin Normal.png",
+	"frame": {"x":212,"y":379,"w":212,"h":134},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":212,"h":134},
+	"sourceSize": {"w":212,"h":134}
+},
+{
+	"filename": "Button-Exit-Hover.png",
+	"frame": {"x":0,"y":513,"w":113,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":111},
+	"sourceSize": {"w":113,"h":111}
+},
+{
+	"filename": "Button-Exit-Normal.png",
+	"frame": {"x":113,"y":513,"w":113,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":111},
+	"sourceSize": {"w":113,"h":111}
+},
+{
+	"filename": "Minus Button Hover.png",
+	"frame": {"x":226,"y":513,"w":54,"h":55},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":54,"h":55},
+	"sourceSize": {"w":54,"h":55}
+},
+{
+	"filename": "Minus Button Normal.png",
+	"frame": {"x":280,"y":513,"w":54,"h":55},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":54,"h":55},
+	"sourceSize": {"w":54,"h":55}
+},
+{
+	"filename": "Plus Button Hover.png",
+	"frame": {"x":334,"y":513,"w":54,"h":55},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":54,"h":55},
+	"sourceSize": {"w":54,"h":55}
+},
+{
+	"filename": "Plus Button Normal.png",
+	"frame": {"x":388,"y":513,"w":54,"h":55},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":54,"h":55},
+	"sourceSize": {"w":54,"h":55}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "ui-atlas.png",
+	"format": "RGBA8888",
+	"size": {"w":496,"h":624},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:c8da87172af9b2090e9fb821e366f4b5:2ed0efa72218fab71d7eecc2cacf5af7:28590b4d2ac7c5b47c72885b0b458085$"
+}
+}
