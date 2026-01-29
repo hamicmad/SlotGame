@@ -27,13 +27,16 @@ export default class ScenePreload extends Phaser.Scene {
     maskImage.x = width / 2 - barWidth;
 
     this.load.image("main_bg", "assets/images/bg.png");
-
+    this.load.image("bigPlate", "assets/images/BigPlate.png");
+    this.load.image("smallPlate", "assets/images/SmallPlate.png");
     this.load.atlas(
       "symbols",
       "assets/atlas/symbols.png",
       "assets/atlas/symbols.json",
     );
     this.load.atlas("ui", "assets/atlas/ui.png", "assets/atlas/ui.json");
+
+    this.load.font("Dosis", "assets/fonts/Dosis.ttf");
 
     this.load.on("progress", (value) => {
       maskImage.x = width / 2 - barWidth + barWidth * value;
