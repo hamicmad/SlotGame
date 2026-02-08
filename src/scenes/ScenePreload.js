@@ -48,8 +48,4 @@ export default class ScenePreload extends Phaser.Scene {
       });
     });
   }
-
-  create() {
-    console.log("Assets loaded");
-  }
 }

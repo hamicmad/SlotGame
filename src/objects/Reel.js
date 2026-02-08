@@ -1,76 +1,110 @@
 import Phaser from "phaser";
+import Symbol from "./Symbol.js"; // Импортируем наш новый класс
+import { SYMBOLS_CONFIG } from "../configs/symbolsConfig.js";
 
 export default class Reel extends Phaser.GameObjects.Container {
-  constructor(scene, x, y, index) {
+  constructor(scene, x, y) {
     super(scene, x, y);
-    this.scene = scene;
-    this.index = index; // колонка
-
-    this.symbolHeight = 246;
-    this.isSpining = false;
+    this.symbolHeight = SYMBOLS_CONFIG.REEL.SYMBOL_HEIGHT;
+    this.isSpinning = false;
+    this.stopping = false;
+    this.targetSymbolId = null;
     this.symbols = [];
-
     this.createSymbols();
-
-    scene.add.existing(this);
   }
 
   createSymbols() {
-    const allNames = this.scene.textures.get("symbols").getFrameNames();
-
+    this.removeAll(true);
+    this.symbols = [];
     for (let i = -1; i < 3; i++) {
-      const name = Phaser.Utils.Array.GetRandom(allNames);
-
-      const symbol = this.scene.add.image(
-        0,
-        i * this.symbolHeight,
-        "symbols",
-        name,
-      );
-
-      symbol.setOrigin(0.5, 0);
-      this.symbols.push(symbol);
+      const randomId = Phaser.Math.Between(0, 9);
+      const symbol = new Symbol(this.scene, 0, i * this.symbolHeight, randomId);
       this.add(symbol);
+      this.symbols.push(symbol);
     }
   }
 
   spin() {
-    this.isSpining = true;
+    this.isSpinning = true;
+    this.stopping = false;
+    this.targetSymbolId = null;
+    this.shouldFinalize = false;
+    this.targetSymbolObject = null;
   }
 
-  stop() {
-    this.isSpining = false;
+  stop(id) {
+    this.targetSymbolId = id;
+    this.stopping = true;
+  }
+
+  update() {
+    if (!this.isSpinning || this.scene.isClosing) return;
+
+    const speed = SYMBOLS_CONFIG.REEL.SPIN_SPEED;
+    const limitY = 2 * this.symbolHeight;
+
+    this.symbols.forEach((symbol) => {
+      symbol.y += speed;
+
+      if (symbol.y >= limitY + this.symbolHeight) {
+        symbol.y -= 4 * this.symbolHeight;
+
+        if (this.stopping && this.targetSymbolId !== null) {
+          symbol.setSymbolId(this.targetSymbolId);
+          this.targetSymbolObject = symbol;
+          this.targetSymbolId = null;
+          this.shouldFinalize = true;
+        } else if (!this.shouldFinalize) {
+          const randomId = Phaser.Math.Between(0, 9);
+          symbol.setSymbolId(randomId);
+        }
+      }
+    });
+
+    if (this.shouldFinalize && this.targetSymbolObject) {
+      if (Math.abs(this.targetSymbolObject.y - this.symbolHeight) < speed) {
+        this.shouldFinalize = false;
+        this.completeStop();
+      }
+    }
+  }
+
+  completeStop() {
+    this.isSpinning = false;
+    this.stopping = false;
+    let completed = 0;
 
     this.symbols.forEach((symbol) => {
       const targetY =
         Math.round(symbol.y / this.symbolHeight) * this.symbolHeight;
-
       this.scene.tweens.add({
         targets: symbol,
         y: targetY,
-        duration: 200,
-        ease: "Cubic.out",
+        duration: 600,
+        ease: "Back.out",
+        onComplete: () => {
+          completed++;
+          if (completed === this.symbols.length) {
+            this.scene.events.emit("REEL_STOPPED");
+          }
+        },
       });
     });
   }
 
-  update() {
-    if (this.isSpining !== true) return;
+  // синх сцен
+  setFinalSymbols(targetId, sourceSymbols) {
+    this.scene.tweens.killTweensOf(this.symbols);
 
-    const speed = 30;
-    const limit = 3 * this.symbolHeight;
+    const mySorted = [...this.symbols].sort((a, b) => a.y - b.y);
+    const sourceSorted = [...sourceSymbols].sort((a, b) => a.y - b.y);
 
-    for (let i = 0; i < this.symbols.length; i++) {
-      const symbol = this.symbols[i];
-      symbol.y += speed;
+    mySorted.forEach((symbol, i) => {
+      symbol.copyFrom(sourceSorted[i]);
 
-      if (symbol.y >= limit) {
-        const overstep = symbol.y - limit;
-        symbol.y = -this.symbolHeight + overstep;
-
-        const allNames = this.scene.textures.get("symbols").getFrameNames();
-        symbol.setFrame(Phaser.Utils.Array.GetRandom(allNames));
+      if (Math.abs(symbol.y - this.symbolHeight) < 50) {
+        symbol.setSymbolId(targetId);
       }
-    }
+    });
   }
 }

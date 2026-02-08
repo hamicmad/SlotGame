@@ -1,5 +1,6 @@
 import Phaser from "phaser";
-import PanelBot from "../objects/PanelBot.js"; // Путь к твоему классу панели
+import Panel from "../objects/Panel.js";
+import SlotMachine from "../objects/SlotMachine.js";
 
 export default class SceneMainMenu extends Phaser.Scene {
   constructor() {
@@ -8,16 +9,24 @@ export default class SceneMainMenu extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-    console.log("MainMenu1");
-
     this.add.image(0, 0, "main_bg").setOrigin(0);
 
-    this.panelBot = new PanelBot(this, width / 2, height - 120);
+    this.slotMachine = new SlotMachine(this, width / 2, 100);
 
-    this.events.on("START_SPIN", () => {
-      this.scene.start("SceneDeal");
-    });
+    this.panel = new Panel(this, width / 2, height - 120, false);
 
-    console.log("MainMenu2");
+    this.events.off("START_SPIN");
+    this.events.on("START_SPIN", this.handleStartSpin, this);
+    this.events.on("UNLOCK_INTERFACE", () => this.panel.setLocked(false));
+  }
+
+  handleStartSpin() {
+    this.panel.setLocked(true);
+    this.slotMachine.setVisible(false);
+
+    const stopIndices = Array.from({ length: 5 }, () =>
+      Phaser.Math.Between(0, 9),
+    );
+    this.scene.launch("SceneDeal", { stopIndices });
   }
 }
