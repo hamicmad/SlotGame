@@ -41,6 +41,47 @@ export default class ScenePreload extends Phaser.Scene {
     );
     this.load.atlas("ui", "assets/atlas/ui.png", "assets/atlas/ui.json");
 
+    this.load.spritesheet("low1An", "assets/sprites/low1An.png", {
+      frameWidth: 281,
+      frameHeight: 281,
+    });
+
+    this.load.spritesheet("low2An", "assets/sprites/low2An.png", {
+      frameWidth: 281,
+      frameHeight: 281,
+    });
+    this.load.spritesheet("low3An", "assets/sprites/low3An.png", {
+      frameWidth: 281,
+      frameHeight: 281,
+    });
+    this.load.spritesheet("low4An", "assets/sprites/low4An.png", {
+      frameWidth: 281,
+      frameHeight: 281,
+    });
+    this.load.spritesheet("high1An", "assets/sprites/high1An.png", {
+      frameWidth: 281,
+      frameHeight: 281,
+    });
+    this.load.spritesheet("high2An", "assets/sprites/high2An.png", {
+      frameWidth: 281,
+      frameHeight: 281,
+    });
+    this.load.spritesheet("high3An", "assets/sprites/high3An.png", {
+      frameWidth: 281,
+      frameHeight: 281,
+    });
+    this.load.spritesheet("high4An", "assets/sprites/high4An.png", {
+      frameWidth: 281,
+      frameHeight: 281,
+    });
+    this.load.spritesheet("high5An", "assets/sprites/high5An.png", {
+      frameWidth: 281,
+      frameHeight: 281,
+    });
+    this.load.spritesheet("wildAn", "assets/sprites/wildAn.png", {
+      frameWidth: 281,
+      frameHeight: 281,
+    });
     this.load.font("Dosis", "assets/fonts/Dosis.ttf");
 
     this.load.on("progress", (value) => {
@@ -50,6 +91,33 @@ export default class ScenePreload extends Phaser.Scene {
     this.load.on("complete", () => {
       this.time.delayedCall(1000, () => {
         this.scene.start("SceneEnter");
+      });
+    });
+  }
+
+  create() {
+    const anKeys = [
+      "low1An",
+      "low2An",
+      "low3An",
+      "low4An",
+      "high1An",
+      "high2An",
+      "high3An",
+      "high4An",
+      "high5An",
+      "wildAn",
+    ];
+
+    anKeys.forEach((sheetKey, i) => {
+      this.anims.create({
+        key: `winAn${i}`,
+        frames: this.anims.generateFrameNumbers(sheetKey, {
+          start: 0,
+          end: 23,
+        }),
+        frameRate: 24,
+        repeat: 0,
       });
     });
   }

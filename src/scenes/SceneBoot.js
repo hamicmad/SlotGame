@@ -12,7 +12,6 @@ export default class SceneBoot extends Phaser.Scene {
   }
 
   create() {
-    console.log("Boot Scene");
     this.scene.start("ScenePreload");
   }
 }

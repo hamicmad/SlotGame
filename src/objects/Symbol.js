@@ -20,6 +20,23 @@ export default class Symbol extends Phaser.GameObjects.Sprite {
     this.setTexture(atlasKey, frameName);
   }
 
+  playAnim() {
+    const anKey = `winAn${this.symbolId}`;
+
+    if (this.scene.anims.exists(anKey)) {
+      this.setDepth(5);
+      this.play(anKey);
+
+      this.once("animationcomplete", () => {
+        this.setDepth(1);
+        const frameName = SYMBOLS_CONFIG.MAP[this.symbolId];
+        this.setTexture("symbols", frameName);
+      });
+    } else {
+      console.log(`Нет анимации ${anKey}`);
+    }
+  }
+
   setSymbolId(newId) {
     this.symbolId = newId;
 

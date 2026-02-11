@@ -106,6 +106,9 @@ export default class Reel extends Phaser.GameObjects.Container {
         onComplete: () => {
           completed++;
           if (completed === this.symbols.length) {
+            this.symbols.forEach((symbol) => {
+              symbol.playAnim(); 
+            });
             this.scene.events.emit("REEL_STOPPED", this.index);
           }
         },
