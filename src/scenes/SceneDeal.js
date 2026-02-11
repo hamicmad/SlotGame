@@ -23,8 +23,10 @@ export default class SceneDeal extends Phaser.Scene {
       this.slotMachine.stopSpin(this.serverResult.stopIndex);
     });
 
+    this.events.off("REEL_STOPPED");
     this.events.on("REEL_STOPPED", () => {
       this.stoppedCount++;
+
       if (this.stoppedCount === 5) {
         this.time.delayedCall(200, () => this.finishDeal());
       }
@@ -48,7 +50,7 @@ export default class SceneDeal extends Phaser.Scene {
       mainMenu.slotMachine.setVisible(true);
       mainMenu.events.emit("UNLOCK_INTERFACE");
     }
-    this.scene.stop();
+    this.scene.stop("SceneDeal");
   }
 
   update(time, delta) {

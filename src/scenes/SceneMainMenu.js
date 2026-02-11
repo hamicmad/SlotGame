@@ -17,6 +17,8 @@ export default class SceneMainMenu extends Phaser.Scene {
 
     this.events.off("START_SPIN");
     this.events.on("START_SPIN", this.handleStartSpin, this);
+
+    this.events.off("UNLOCK_INTERFACE");
     this.events.on("UNLOCK_INTERFACE", () => this.panel.setLocked(false));
   }
 
@@ -24,9 +26,9 @@ export default class SceneMainMenu extends Phaser.Scene {
     this.panel.setLocked(true);
     this.slotMachine.setVisible(false);
 
-    const stopIndices = Array.from({ length: 5 }, () =>
+    const stopIndex = Array.from({ length: 5 }, () =>
       Phaser.Math.Between(0, 9),
     );
-    this.scene.launch("SceneDeal", { stopIndices });
+    this.scene.launch("SceneDeal", { stopIndex });
   }
 }

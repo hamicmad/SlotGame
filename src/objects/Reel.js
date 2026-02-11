@@ -3,7 +3,7 @@ import Symbol from "./Symbol.js"; // Импортируем наш новый к
 import { SYMBOLS_CONFIG } from "../configs/symbolsConfig.js";
 
 export default class Reel extends Phaser.GameObjects.Container {
-  constructor(scene, x, y) {
+  constructor(scene, x, y, index) {
     super(scene, x, y);
     this.symbolHeight = SYMBOLS_CONFIG.REEL.SYMBOL_HEIGHT;
     this.isSpinning = false;
@@ -11,14 +11,21 @@ export default class Reel extends Phaser.GameObjects.Container {
     this.targetSymbolId = null;
     this.symbols = [];
     this.createSymbols();
+    this.index = index;
   }
 
   createSymbols() {
     this.removeAll(true);
     this.symbols = [];
+
+    const offset = this.symbolHeight / 2;
+
     for (let i = -1; i < 3; i++) {
       const randomId = Phaser.Math.Between(0, 9);
-      const symbol = new Symbol(this.scene, 0, i * this.symbolHeight, randomId);
+
+      const symbolY = i * this.symbolHeight + offset;
+
+      const symbol = new Symbol(this.scene, 0, symbolY, randomId);
       this.add(symbol);
       this.symbols.push(symbol);
     }
@@ -32,6 +39,12 @@ export default class Reel extends Phaser.GameObjects.Container {
     this.targetSymbolObject = null;
   }
 
+  setBlur(isBlur) {
+    this.symbols.forEach((sym) => {
+      sym.blurSymbols(isBlur);
+    });
+  }
+
   stop(id) {
     this.targetSymbolId = id;
     this.stopping = true;
@@ -41,12 +54,14 @@ export default class Reel extends Phaser.GameObjects.Container {
     if (!this.isSpinning || this.scene.isClosing) return;
 
     const speed = SYMBOLS_CONFIG.REEL.SPIN_SPEED;
-    const limitY = 2 * this.symbolHeight;
+    const offset = this.symbolHeight / 2; // 125
+
+    const limitY = this.symbolHeight * 3 + offset;
 
     this.symbols.forEach((symbol) => {
       symbol.y += speed;
 
-      if (symbol.y >= limitY + this.symbolHeight) {
+      if (symbol.y >= limitY) {
         symbol.y -= 4 * this.symbolHeight;
 
         if (this.stopping && this.targetSymbolId !== null) {
@@ -62,7 +77,10 @@ export default class Reel extends Phaser.GameObjects.Container {
     });
 
     if (this.shouldFinalize && this.targetSymbolObject) {
-      if (Math.abs(this.targetSymbolObject.y - this.symbolHeight) < speed) {
+      const targetCenterY = this.symbolHeight * 1.5;
+      this.setBlur(false);
+
+      if (Math.abs(this.targetSymbolObject.y - targetCenterY) < speed) {
         this.shouldFinalize = false;
         this.completeStop();
       }
@@ -75,8 +93,11 @@ export default class Reel extends Phaser.GameObjects.Container {
     let completed = 0;
 
     this.symbols.forEach((symbol) => {
+      const offset = this.symbolHeight / 2;
       const targetY =
-        Math.round(symbol.y / this.symbolHeight) * this.symbolHeight;
+        Math.round((symbol.y - offset) / this.symbolHeight) *
+          this.symbolHeight +
+        offset;
       this.scene.tweens.add({
         targets: symbol,
         y: targetY,
@@ -85,7 +106,7 @@ export default class Reel extends Phaser.GameObjects.Container {
         onComplete: () => {
           completed++;
           if (completed === this.symbols.length) {
-            this.scene.events.emit("REEL_STOPPED");
+            this.scene.events.emit("REEL_STOPPED", this.index);
           }
         },
       });
@@ -99,10 +120,12 @@ export default class Reel extends Phaser.GameObjects.Container {
     const mySorted = [...this.symbols].sort((a, b) => a.y - b.y);
     const sourceSorted = [...sourceSymbols].sort((a, b) => a.y - b.y);
 
+    const centerY = this.symbolHeight * 1.5;
+
     mySorted.forEach((symbol, i) => {
       symbol.copyFrom(sourceSorted[i]);
 
-      if (Math.abs(symbol.y - this.symbolHeight) < 50) {
+      if (Math.abs(symbol.y - centerY) < 50) {
         symbol.setSymbolId(targetId);
       }
     });

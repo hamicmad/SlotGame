@@ -34,6 +34,11 @@ export default class ScenePreload extends Phaser.Scene {
       "assets/atlas/symbols.png",
       "assets/atlas/symbols.json",
     );
+    this.load.atlas(
+      "blurSymbols",
+      "assets/atlas/blurSymbols.png",
+      "assets/atlas/blurSymbols.json",
+    );
     this.load.atlas("ui", "assets/atlas/ui.png", "assets/atlas/ui.json");
 
     this.load.font("Dosis", "assets/fonts/Dosis.ttf");

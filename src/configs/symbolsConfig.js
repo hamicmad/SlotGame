@@ -12,9 +12,22 @@ export const SYMBOLS_CONFIG = {
     9: "wild",
   },
 
+  BLUR: {
+    0: "low1Blur",
+    1: "low2Blur",
+    2: "low3Blur",
+    3: "low4Blur",
+    4: "high1Blur",
+    5: "high2Blur",
+    6: "high3Blur",
+    7: "high4Blur",
+    8: "high5Blur",
+    9: "wildBlur",
+  },
+
   REEL: {
     SYMBOL_HEIGHT: 250,
     SPIN_SPEED: 35,
-    STOP_DELAY: 200,
+    STOP_DELAY: 500,
   },
 };
