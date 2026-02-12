@@ -29,16 +29,12 @@ export default class ScenePreload extends Phaser.Scene {
     this.load.image("main_bg", "assets/images/bg.png");
     this.load.image("bigPlate", "assets/images/BigPlate.png");
     this.load.image("smallPlate", "assets/images/SmallPlate.png");
-    this.load.atlas(
-      "symbols",
-      "assets/atlas/symbols.png",
-      "assets/atlas/symbols.json",
-    );
+    this.load.atlas("symbols", "assets/atlas/symbols.png", "assets/atlas/symbols.json"); // нормикс
     this.load.atlas(
       "blurSymbols",
       "assets/atlas/blurSymbols.png",
       "assets/atlas/blurSymbols.json",
-    );
+    ); //не нормикс (чуже читается чем вариант выше)
     this.load.atlas("ui", "assets/atlas/ui.png", "assets/atlas/ui.json");
 
     this.load.spritesheet("low1An", "assets/sprites/low1An.png", {
