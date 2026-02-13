@@ -1,6 +1,7 @@
 import Phaser from "phaser";
+import ReelsManager from "../objects/ReelsManager.js";
+import ServerAnalytics from "../modules/ServerAnalytics.js";
 import Panel from "../objects/Panel.js";
-import SlotMachine from "../objects/SlotMachine.js";
 
 export default class SceneMainMenu extends Phaser.Scene {
   constructor() {
@@ -9,26 +10,61 @@ export default class SceneMainMenu extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-    this.add.image(0, 0, "main_bg").setOrigin(0);
+    this.add.image(width / 2, height / 2, "main_bg");
 
-    this.slotMachine = new SlotMachine(this, width / 2, 100);
+    this.stats = new ServerAnalytics();
+    this.reelsManager = new ReelsManager(this, width / 2, 100);
+    this.panel = new Panel(this, width / 2, height - 100);
 
-    this.panel = new Panel(this, width / 2, height - 120, false);
+    const initBox = Array(5).fill([0, 1, 2]);
+    this.reelsManager.fill(initBox);
 
-    this.events.off("START_SPIN");
-    this.events.on("START_SPIN", this.handleStartSpin, this);
+    this.panel.setValue("BALANCE", this.stats.getBalance());
 
-    this.events.off("UNLOCK_INTERFACE");
-    this.events.on("UNLOCK_INTERFACE", () => this.panel.setLocked(false));
+    this.events.on("START_SPIN", () => {
+      this.handleStartSpin();
+    });
+
+    this.events.on("UNLOCK_INTERFACE", () => {
+      this.panel.setLocked(false);
+    });
   }
 
   handleStartSpin() {
-    this.panel.setLocked(true);
-    this.slotMachine.setVisible(false);
+    const result = this.stats.getNextSpin();
+    if (result) {
+      const balanceAfterBet = result.newBalance - result.totalWin;
+      this.panel.setValue("BALANCE", balanceAfterBet);
+      this.panel.setLocked(true);
 
-    const stopIndex = Array.from({ length: 5 }, () =>
-      Phaser.Math.Between(0, 9),
-    );
-    this.scene.launch("SceneDeal", { stopIndex });
+      this.scene.launch("SceneDeal", {
+        stopBox: result.stopBox,
+        reelsManager: this.reelsManager,
+        winData: result,
+      });
+    }
+  }
+
+  animateBalance(targetBalance, winAmount) {
+    this.tweens.killTweensOf(this.panel);
+    const startValue = targetBalance - winAmount;
+    let displayObj = { val: startValue };
+
+    this.tweens.add({
+      targets: displayObj,
+      val: targetBalance,
+      duration: 1000,
+      ease: "Quad.out",
+      onUpdate: () => {
+        this.panel.setValue("BALANCE", Math.floor(displayObj.val));
+      },
+      onComplete: () => {
+        this.panel.setValue("BALANCE", targetBalance);
+      },
+    });
+  }
+
+  update(time, delta) {
+    if (this.reelsManager) this.reelsManager.update(time, delta);
   }
 }

@@ -1,87 +1,86 @@
 import Phaser from "phaser";
-import Symbol from "./Symbol.js"; // Импортируем наш новый класс
+import Symbol from "./Symbol.js";
 import { SYMBOLS_CONFIG } from "../configs/symbolsConfig.js";
 
 export default class Reel extends Phaser.GameObjects.Container {
   constructor(scene, x, y, index) {
     super(scene, x, y);
+    this.index = index;
     this.symbolHeight = SYMBOLS_CONFIG.REEL.SYMBOL_HEIGHT;
+    this.symbols = [];
     this.isSpinning = false;
     this.stopping = false;
-    this.targetSymbolId = null;
-    this.symbols = [];
+    this.shouldFinalize = false;
+    this.targetIds = [];
+    this.symbolsPlaced = 0;
+    this.upSymbol = null; // Ссылка на "замыкающий" (верхний) символ
     this.createSymbols();
-    this.index = index;
   }
 
   createSymbols() {
-    this.removeAll(true);
-    this.symbols = [];
-
-    const offset = this.symbolHeight / 2;
-
-    for (let i = -1; i < 3; i++) {
-      const randomId = Phaser.Math.Between(0, 9);
-
-      const symbolY = i * this.symbolHeight + offset;
-
-      const symbol = new Symbol(this.scene, 0, symbolY, randomId);
+    // Делаем 5 символов с симметричным буфером
+    for (let i = 0; i < 5; i++) {
+      const symbolY = (i - 1) * this.symbolHeight + this.symbolHeight / 2;
+      // Позиции будут: -125, 125, 375, 625, 875 (для высоты 250)
+      // Или при высоте 125: -62.5, 62.5, 187.5, 312.5, 437.5
+      const symbol = new Symbol(this.scene, 0, symbolY, 0);
       this.add(symbol);
       this.symbols.push(symbol);
+    }
+  }
+
+  fill(ids) {
+    this.symbols.sort((a, b) => a.y - b.y);
+    for (let i = 0; i < 3; i++) {
+      this.symbols[i + 1].setSymbolId(ids[i]);
     }
   }
 
   spin() {
     this.isSpinning = true;
     this.stopping = false;
-    this.targetSymbolId = null;
     this.shouldFinalize = false;
-    this.targetSymbolObject = null;
+    this.symbolsPlaced = 0;
+    this.upSymbol = null;
+    this.symbols.forEach((s) => s.blurSymbols(true));
   }
 
-  setBlur(isBlur) {
-    this.symbols.forEach((sym) => {
-      sym.blurSymbols(isBlur);
-    });
-  }
-
-  stop(id) {
-    this.targetSymbolId = id;
+  stop(targetColumnIds) {
+    this.targetIds = targetColumnIds;
     this.stopping = true;
   }
 
   update() {
-    if (!this.isSpinning || this.scene.isClosing) return;
+    if (!this.isSpinning) return;
 
     const speed = SYMBOLS_CONFIG.REEL.SPIN_SPEED;
-    const offset = this.symbolHeight / 2; // 125
-
-    const limitY = this.symbolHeight * 3 + offset;
+    const limitY = this.symbolHeight * 3.5;
 
     this.symbols.forEach((symbol) => {
       symbol.y += speed;
 
       if (symbol.y >= limitY) {
-        symbol.y -= 4 * this.symbolHeight;
+        symbol.y -= 5 * this.symbolHeight;
 
-        if (this.stopping && this.targetSymbolId !== null) {
-          symbol.setSymbolId(this.targetSymbolId);
-          this.targetSymbolObject = symbol;
-          this.targetSymbolId = null;
-          this.shouldFinalize = true;
-        } else if (!this.shouldFinalize) {
-          const randomId = Phaser.Math.Between(0, 9);
-          symbol.setSymbolId(randomId);
+        if (this.stopping && this.symbolsPlaced < 3) {
+          const mapping = [2, 1, 0];
+          const targetIndex = mapping[this.symbolsPlaced];
+          symbol.setSymbolId(this.targetIds[targetIndex]);
+
+          if (targetIndex === 0) {
+            this.upSymbol = symbol;
+            this.shouldFinalize = true;
+          }
+          this.symbolsPlaced++;
+        } else {
+          symbol.setSymbolId(Phaser.Math.Between(0, 9));
         }
       }
     });
 
-    if (this.shouldFinalize && this.targetSymbolObject) {
-      const targetCenterY = this.symbolHeight * 1.5;
-      this.setBlur(false);
-
-      if (Math.abs(this.targetSymbolObject.y - targetCenterY) < speed) {
-        this.shouldFinalize = false;
+    if (this.shouldFinalize && this.upSymbol) {
+      const targetY = this.symbolHeight * 0.5;
+      if (this.upSymbol.y + speed >= targetY) {
         this.completeStop();
       }
     }
@@ -89,48 +88,29 @@ export default class Reel extends Phaser.GameObjects.Container {
 
   completeStop() {
     this.isSpinning = false;
-    this.stopping = false;
-    let completed = 0;
+    this.shouldFinalize = false;
 
-    this.symbols.forEach((symbol) => {
-      const offset = this.symbolHeight / 2;
-      const targetY =
-        Math.round((symbol.y - offset) / this.symbolHeight) *
-          this.symbolHeight +
-        offset;
+    this.symbols.sort((a, b) => Math.round(a.y) - Math.round(b.y));
+
+    const offset = this.symbolHeight / 2;
+    let completedTweens = 0;
+
+    this.symbols.forEach((symbol, i) => {
+      symbol.blurSymbols(false);
+      const finalY = (i - 1) * this.symbolHeight + offset;
+
       this.scene.tweens.add({
         targets: symbol,
-        y: targetY,
+        y: finalY,
         duration: 600,
         ease: "Back.out",
         onComplete: () => {
-          completed++;
-          if (completed === this.symbols.length) {
-            this.symbols.forEach((symbol) => {
-              symbol.playAnim(); 
-            });
+          completedTweens++;
+          if (completedTweens === this.symbols.length) {
             this.scene.events.emit("REEL_STOPPED", this.index);
           }
         },
       });
-    });
-  }
-
-  // синх сцен
-  setFinalSymbols(targetId, sourceSymbols) {
-    this.scene.tweens.killTweensOf(this.symbols);
-
-    const mySorted = [...this.symbols].sort((a, b) => a.y - b.y);
-    const sourceSorted = [...sourceSymbols].sort((a, b) => a.y - b.y);
-
-    const centerY = this.symbolHeight * 1.5;
-
-    mySorted.forEach((symbol, i) => {
-      symbol.copyFrom(sourceSorted[i]);
-
-      if (Math.abs(symbol.y - centerY) < 50) {
-        symbol.setSymbolId(targetId);
-      }
     });
   }
 }

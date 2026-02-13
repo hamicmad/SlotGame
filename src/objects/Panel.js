@@ -170,4 +170,25 @@ export default class Panel extends Phaser.GameObjects.Container {
       this.scene.events.emit("START_SPIN");
     }
   }
+
+  updateBalance(newBalance, totalWin) {
+    if (totalWin <= 0) {
+      this.balanceText.setText(newBalance.toLocaleString());
+      return;
+    }
+
+    const startValue = parseInt(this.balanceText.text.replace(/\s/g, ""));
+
+    const counter = { val: startValue };
+
+    this.scene.tweens.add({
+      targets: counter,
+      val: newBalance,
+      duration: 1000,
+      ease: "Linear",
+      onUpdate: () => {
+        this.balanceText.setText(Math.floor(counter.val).toLocaleString());
+      },
+    });
+  }
 }
