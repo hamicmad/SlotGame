@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import Reel from "./Reel.js";
 import { SYMBOLS_CONFIG } from "../configs/symbolsConfig.js";
+import { GameEvents } from "../objects/Events.js";
 
 export default class ReelsManager extends Phaser.GameObjects.Container {
   constructor(scene, x, y) {
@@ -33,12 +34,14 @@ export default class ReelsManager extends Phaser.GameObjects.Container {
   }
 
   startSpin() {
+    this.scene.events.emit(GameEvents.GAME.REELS_START);
     this.reels.forEach((reel, i) => {
       this.scene.time.delayedCall(i * 100, () => reel.spin());
     });
   }
 
   stopSpin(stopBox) {
+    this.scene.events.emit(GameEvents.GAME.REELS_STOPPING);
     this.reels.forEach((reel, i) => {
       this.scene.time.delayedCall(i * 300, () => {
         reel.stop(stopBox[i]);
@@ -49,11 +52,9 @@ export default class ReelsManager extends Phaser.GameObjects.Container {
   getSymbolAt(reelIndex, rowIndex) {
     const reel = this.reels[reelIndex];
     if (!reel) return null;
-
     const sorted = [...reel.symbols].sort(
       (a, b) => Math.round(a.y) - Math.round(b.y),
     );
-
     return sorted[rowIndex + 1];
   }
 

@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import Symbol from "./Symbol.js";
 import { SYMBOLS_CONFIG } from "../configs/symbolsConfig.js";
+import { GameEvents } from "../objects/Events.js";
 
 export default class Reel extends Phaser.GameObjects.Container {
   constructor(scene, x, y, index) {
@@ -13,16 +14,13 @@ export default class Reel extends Phaser.GameObjects.Container {
     this.shouldFinalize = false;
     this.targetIds = [];
     this.symbolsPlaced = 0;
-    this.upSymbol = null; // Ссылка на "замыкающий" (верхний) символ
+    this.upSymbol = null;
     this.createSymbols();
   }
 
   createSymbols() {
-    // Делаем 5 символов с симметричным буфером
     for (let i = 0; i < 5; i++) {
       const symbolY = (i - 1) * this.symbolHeight + this.symbolHeight / 2;
-      // Позиции будут: -125, 125, 375, 625, 875 (для высоты 250)
-      // Или при высоте 125: -62.5, 62.5, 187.5, 312.5, 437.5
       const symbol = new Symbol(this.scene, 0, symbolY, 0);
       this.add(symbol);
       this.symbols.push(symbol);
@@ -91,7 +89,6 @@ export default class Reel extends Phaser.GameObjects.Container {
     this.shouldFinalize = false;
 
     this.symbols.sort((a, b) => Math.round(a.y) - Math.round(b.y));
-
     const offset = this.symbolHeight / 2;
     let completedTweens = 0;
 
@@ -107,7 +104,7 @@ export default class Reel extends Phaser.GameObjects.Container {
         onComplete: () => {
           completedTweens++;
           if (completedTweens === this.symbols.length) {
-            this.scene.events.emit("REEL_STOPPED", this.index);
+            this.scene.events.emit(GameEvents.GAME.REEL_STOPPED, this.index);
           }
         },
       });

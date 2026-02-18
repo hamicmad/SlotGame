@@ -3,23 +3,25 @@ import { PAYTABLE } from "../configs/payTableConfig.js";
 
 export default class ServerAnalytics {
   constructor() {
-    this.balance = 5000;
-    this.bet = 10;
+    this.balance = 2000;
+    this.totalBet = 200;
+    this.activeLines = 20;
     this.WILD_ID = 9;
   }
 
   getNextSpin() {
-    if (this.balance < this.bet) return null;
+    const totalCost = this.totalBet;
+    if (this.balance < totalCost) {
+      return null;
+    }
 
-    this.balance -= this.bet;
+    this.balance -= totalCost;
+    const betPerLine = this.totalBet / this.activeLines;
 
     let stopBox = [];
-    const nreels = 5;
-    const nrows = 3;
-
-    for (let i = 0; i < nreels; i++) {
+    for (let i = 0; i < 5; i++) {
       stopBox[i] = [];
-      for (let j = 0; j < nrows; j++) {
+      for (let j = 0; j < 3; j++) {
         stopBox[i][j] = Math.floor(Math.random() * 10);
       }
     }
@@ -28,7 +30,8 @@ export default class ServerAnalytics {
     const winningCoords = [];
     let totalWin = 0;
 
-    LINES_CONFIG.forEach((line, lineIndex) => {
+    for (let lineIndex = 0; lineIndex < this.activeLines; lineIndex++) {
+      const line = LINES_CONFIG[lineIndex];
       let targetSymbolId = -1;
       let matchCount = 0;
 
@@ -44,7 +47,6 @@ export default class ServerAnalytics {
 
       for (let i = 0; i < line.length; i++) {
         const currentId = stopBox[i][line[i]];
-
         if (currentId === targetSymbolId || currentId === this.WILD_ID) {
           matchCount++;
         } else {
@@ -55,7 +57,7 @@ export default class ServerAnalytics {
       if (matchCount >= 3) {
         const symbolData = PAYTABLE[targetSymbolId];
         const multiplier = symbolData[matchCount] || 0;
-        const payout = multiplier * this.bet;
+        const payout = multiplier * betPerLine;
 
         if (payout > 0) {
           totalWin += payout;
@@ -67,27 +69,28 @@ export default class ServerAnalytics {
           });
 
           for (let i = 0; i < matchCount; i++) {
-            const coord = { reel: i, row: line[i] };
-            const exists = winningCoords.some(
-              (c) => c.reel === coord.reel && c.row === coord.row,
-            );
-            if (!exists) winningCoords.push(coord);
+            winningCoords.push({ reel: i, row: line[i] });
           }
         }
       }
-    });
+    }
+
+    const uniqueCoords = winningCoords.filter(
+      (v, i, a) =>
+        a.findIndex((t) => t.reel === v.reel && t.row === v.row) === i,
+    );
 
     this.balance += totalWin;
-
-    console.table(stopBox);
 
     return {
       stopBox,
       newBalance: this.balance,
       totalWin,
       winningLines,
-      winningCoords,
-      bet: this.bet,
+      winningCoords: uniqueCoords,
+      bet: betPerLine,
+      totalBet: this.totalBet,
+      activeLines: this.activeLines,
     };
   }
 

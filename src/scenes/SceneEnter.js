@@ -37,7 +37,6 @@ export default class SceneEnter extends Phaser.Scene {
     });
 
     this.input.once("pointerdown", () => {
-      console.log("SceneEnter");
       this.scene.start("SceneMainMenu");
     });
   }

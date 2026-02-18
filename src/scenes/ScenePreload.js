@@ -31,6 +31,8 @@ export default class ScenePreload extends Phaser.Scene {
     this.load.image("smallPlate", "assets/images/SmallPlate.png");
     this.load.image("hugeWin", "assets/images/hugeWin.png");
     this.load.image("megaWin", "assets/images/megaWin.png");
+    this.load.image("Exit Icon Normal", "assets/images/Exit Icon Normal.png");
+    this.load.image("Exit Icon Hover", "assets/images/Exit Icon Hover.png");
 
     this.load.atlas(
       "symbols",
@@ -43,6 +45,16 @@ export default class ScenePreload extends Phaser.Scene {
       "assets/atlas/blurSymbols.json",
     ); //не нормикс (чуже читается чем вариант выше)
     this.load.atlas("ui", "assets/atlas/ui.png", "assets/atlas/ui.json");
+    this.load.atlas(
+      "PopUps",
+      "assets/atlas/PopUps.png",
+      "assets/atlas/PopUps.json",
+    );
+    this.load.atlas(
+      "PopUps1",
+      "assets/atlas/PopUps1.png",
+      "assets/atlas/PopUps1.json",
+    );
 
     this.load.spritesheet("low1An", "assets/sprites/low1An.png", {
       frameWidth: 281,

@@ -1,19 +1,20 @@
 import Phaser from "phaser";
+import { GameEvents } from "../objects/Events.js";
+import Button from "./Buttons.js";
 
 export default class Panel extends Phaser.GameObjects.Container {
   constructor(scene, x, y, startLocked = false) {
     super(scene, x, y);
-
     this.isLocked = startLocked;
-    this.buttons = [];
     this.valueTexts = {};
+    this.isMenuOpen = false;
+    this.subMenuButtons = [];
 
     this.baseTextStyle = {
       fontFamily: "Dosis, Arial",
       fontSize: "45px",
       fill: "#ffffff",
-      align: "center",
-      fontWeight: "900",
+      fontWeight: "800",
       stroke: "#ffffff",
       strokeThickness: 2,
     };
@@ -26,73 +27,200 @@ export default class Panel extends Phaser.GameObjects.Container {
       },
       minus: { normal: "Minus Button Normal", pressed: "Minus Button Hover" },
       plus: { normal: "Plus Button Normal", pressed: "Plus Button Hover" },
+      menu: { normal: "Button Menu Normal", pressed: "Button Menu Hover" },
       smallFrame: "smallPlate",
       bigFrame: "bigPlate",
+      settings: {
+        normal: "Button Settings Normal",
+        pressed: "Button Settings Hover",
+      },
+      info: { normal: "Button Info Normal", pressed: "Button Info Hover" },
+      rules: { normal: "Button Rules Normal", pressed: "Button Rules Hover" },
     };
 
     this.initElements();
     scene.add.existing(this);
-
-    this.setAlpha(0);
-    scene.tweens.add({ targets: this, alpha: 1, duration: 300 });
-
-    if (this.isLocked) {
-      this.setLocked(true);
-    }
+    if (this.isLocked) this.setLocked(true);
   }
 
   initElements() {
-    this.createButton(0, 60, this.frames.spin, "SPIN", "60px", () =>
-      this.onSpinClick(),
+    this.add(
+      new Button(
+        this.scene,
+        0,
+        45,
+        "ui",
+        this.frames.spin,
+        "SPIN",
+        "60px",
+        this.baseTextStyle,
+        () => this.onSpinClick(),
+      ),
     );
-    this.createButton(-170, 60, this.frames.autoSpin, "MAX\nBET", "45px");
-    this.createButton(170, 60, this.frames.autoSpin, "AUTO\nSPIN", "45px");
+    this.add(
+      new Button(
+        this.scene,
+        -170,
+        45,
+        "ui",
+        this.frames.autoSpin,
+        "MAX\nBET",
+        "45px",
+        this.baseTextStyle,
+        () => this.scene.events.emit(GameEvents.UI.MAX_BET),
+      ),
+    );
+    this.add(
+      new Button(
+        this.scene,
+        170,
+        45,
+        "ui",
+        this.frames.autoSpin,
+        "AUTO\nSPIN",
+        "40px",
+        this.baseTextStyle,
+        () => this.scene.events.emit(GameEvents.UI.TOGGLE_AUTO),
+      ),
+    );
+
+    this.createMenuSystem(840, -820);
 
     const fields = [
       {
         x: -650,
         label: "LINES",
-        val: "100",
         frame: this.frames.smallFrame,
         btns: true,
+        onMinus: () => this.scene.events.emit(GameEvents.UI.CHANGE_LINES, -1),
+        onPlus: () => this.scene.events.emit(GameEvents.UI.CHANGE_LINES, 1),
       },
       {
         x: -400,
         label: "TOTAL BET",
-        val: "10",
         frame: this.frames.bigFrame,
         btns: true,
+        onMinus: () => this.scene.events.emit(GameEvents.UI.CHANGE_BET, -1),
+        onPlus: () => this.scene.events.emit(GameEvents.UI.CHANGE_BET, 1),
       },
-      {
-        x: 350,
-        label: "BALANCE",
-        val: "5000",
-        frame: this.frames.bigFrame,
-        btns: false,
-      },
-      {
-        x: 600,
-        label: "YOUR WIN",
-        val: "0",
-        frame: this.frames.smallFrame,
-        btns: false,
-      },
+      { x: 350, label: "BALANCE", frame: this.frames.bigFrame, btns: false },
+      { x: 600, label: "YOUR WIN", frame: this.frames.smallFrame, btns: false },
     ];
 
     fields.forEach((f) =>
-      this.createNumericField(f.x, 60, f.label, f.val, f.frame, f.btns),
+      this.createNumericField(
+        f.x,
+        60,
+        f.label,
+        0,
+        f.frame,
+        f.btns,
+        f.onMinus,
+        f.onPlus,
+      ),
     );
   }
 
-  createNumericField(x, y, label, startValue, frameKey, hasButtons) {
-    const titleY = label === "BALANCE" || label === "YOUR WIN" ? 15 : 10;
+  createMenuSystem(x, y) {
+    const menuConfig = [
+      {
+        frame: this.frames.rules,
+        event: GameEvents.GAME.SHOW_POPUP,
+        type: "HELP",
+        offX: -246,
+      },
+      {
+        frame: this.frames.info,
+        event: GameEvents.UI.OPEN_PAYTABLE,
+        type: "PAYTABLE",
+        offX: -163,
+      },
+      {
+        frame: this.frames.settings,
+        event: GameEvents.GAME.SHOW_POPUP,
+        type: "SETTINGS",
+        offX: -80,
+      },
+    ];
 
+    menuConfig.forEach((config) => {
+      const btn = new Button(
+        this.scene,
+        x,
+        y,
+        "ui",
+        config.frame,
+        "",
+        "0px",
+        this.baseTextStyle,
+        () => {
+          this.scene.events.emit(config.event, config.type);
+          this.toggleMenu();
+        },
+      );
+
+      btn.setAlpha(0);
+      this.add(btn);
+
+      this.subMenuButtons.push({
+        obj: btn,
+        targetX: x + config.offX,
+        startX: x,
+      });
+    });
+
+    this.add(
+      new Button(
+        this.scene,
+        x,
+        y,
+        "ui",
+        this.frames.menu,
+        "",
+        "0px",
+        this.baseTextStyle,
+        () => this.toggleMenu(),
+      ),
+    );
+  }
+
+  toggleMenu() {
+    if (this.isLocked) return;
+    this.isMenuOpen = !this.isMenuOpen;
+
+    this.subMenuButtons.forEach((item, i) => {
+      this.scene.tweens.add({
+        targets: item.obj,
+        x: this.isMenuOpen ? item.targetX : item.startX,
+        alpha: this.isMenuOpen ? 1 : 0,
+        duration: 300,
+        delay: i * 50,
+        ease: "Back.out",
+      });
+    });
+  }
+
+  createNumericField(
+    x,
+    y,
+    label,
+    startValue,
+    frameKey,
+    hasButtons,
+    onMinus,
+    onPlus,
+  ) {
+    const titleY = label === "BALANCE" || label === "YOUR WIN" ? 15 : 10;
     const title = this.scene.add
       .text(x, titleY, label, { ...this.baseTextStyle, fontSize: "32px" })
       .setOrigin(0.5);
     const plate = this.scene.add.image(x, y, frameKey);
     const valText = this.scene.add
-      .text(x, y, startValue, { ...this.baseTextStyle, fontSize: "32px" })
+      .text(x, y, startValue, {
+        ...this.baseTextStyle,
+        fontFamily: "Arial",
+        fontSize: "32px",
+      })
       .setOrigin(0.5);
 
     this.add([title, plate, valText]);
@@ -100,95 +228,49 @@ export default class Panel extends Phaser.GameObjects.Container {
 
     if (hasButtons) {
       const offset = plate.width / 2 - 30;
-      this.createButton(x - offset, y, this.frames.minus, "", "1px");
-      this.createButton(x + offset, y, this.frames.plus, "", "1px");
+      this.add(
+        new Button(
+          this.scene,
+          x - offset,
+          y,
+          "ui",
+          this.frames.minus,
+          "",
+          "1px",
+          this.baseTextStyle,
+          onMinus,
+        ),
+      );
+      this.add(
+        new Button(
+          this.scene,
+          x + offset,
+          y,
+          "ui",
+          this.frames.plus,
+          "",
+          "1px",
+          this.baseTextStyle,
+          onPlus,
+        ),
+      );
     }
-  }
-
-  createButton(x, y, frames, text, fontSize, callback) {
-    const btn = this.scene.add
-      .image(x, y, "ui", frames.normal)
-      .setInteractive({ useHandCursor: true });
-    const txt = this.scene.add
-      .text(x, y, text.toUpperCase(), {
-        ...this.baseTextStyle,
-        fontSize: fontSize || "45px",
-      })
-      .setOrigin(0.5);
-
-    if (text.includes("\n")) txt.setLineSpacing(-10);
-    this.add([btn, txt]);
-
-    this.buttons.push({ image: btn, text: txt, frames: frames, originalY: y });
-
-    btn.on("pointerdown", () => {
-      if (this.isLocked) return;
-      btn.setFrame(frames.pressed);
-      txt.y = y + 4;
-    });
-
-    const onRelease = () => {
-      btn.setFrame(frames.normal);
-      txt.y = y;
-    };
-
-    btn.on("pointerup", () => {
-      onRelease();
-      if (callback && !this.isLocked) callback();
-    });
-
-    btn.on("pointerout", onRelease);
-    return btn;
   }
 
   setLocked(locked) {
     this.isLocked = locked;
-
-    this.buttons.forEach((btnGroup) => {
-      const { image, text } = btnGroup;
-
-      if (locked) {
-        image.disableInteractive();
-        image.setAlpha(0.5);
-        text.setAlpha(0.5);
-      } else {
-        image.setInteractive({ useHandCursor: true });
-        image.setAlpha(1);
-        text.setAlpha(1);
-      }
+    if (this.isMenuOpen && locked) this.toggleMenu();
+    this.list.forEach((child) => {
+      if (child instanceof Button) child.setLocked(locked);
     });
   }
 
   setValue(label, newValue) {
-    if (this.valueTexts && this.valueTexts[label]) {
-      this.valueTexts[label].setText(String(newValue ?? ""));
-    }
+    if (this.valueTexts[label])
+      this.valueTexts[label].setText(String(newValue));
   }
 
   onSpinClick() {
-    if (!this.isLocked) {
-      this.scene.events.emit("START_SPIN");
-    }
-  }
-
-  updateBalance(newBalance, totalWin) {
-    if (totalWin <= 0) {
-      this.balanceText.setText(newBalance.toLocaleString());
-      return;
-    }
-
-    const startValue = parseInt(this.balanceText.text.replace(/\s/g, ""));
-
-    const counter = { val: startValue };
-
-    this.scene.tweens.add({
-      targets: counter,
-      val: newBalance,
-      duration: 1000,
-      ease: "Linear",
-      onUpdate: () => {
-        this.balanceText.setText(Math.floor(counter.val).toLocaleString());
-      },
-    });
+    if (!this.isLocked) this.scene.events.emit(GameEvents.UI.START_SPIN);
   }
 }

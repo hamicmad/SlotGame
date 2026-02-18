@@ -1,0 +1,52 @@
+{"frames": {
+
+"Pop Up About":
+{
+	"frame": {"x":0,"y":0,"w":456,"h":487},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":456,"h":487},
+	"sourceSize": {"w":456,"h":487}
+},
+"Pop Up Message Small":
+{
+	"frame": {"x":456,"y":0,"w":516,"h":231},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":516,"h":231},
+	"sourceSize": {"w":516,"h":231}
+},
+"Pop Up Message":
+{
+	"frame": {"x":972,"y":0,"w":595,"h":430},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":595,"h":430},
+	"sourceSize": {"w":595,"h":430}
+},
+"Pop Up Paytable":
+{
+	"frame": {"x":0,"y":487,"w":1370,"h":718},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1370,"h":718},
+	"sourceSize": {"w":1370,"h":718}
+},
+"Pop Up Settings":
+{
+	"frame": {"x":1370,"y":487,"w":675,"h":722},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":675,"h":722},
+	"sourceSize": {"w":675,"h":722}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "PopUps1.png",
+	"format": "RGBA8888",
+	"size": {"w":2045,"h":1209},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:6b8bd3716a40343281f98c920b6d61b5:00def6086a89e8feb91e222070f56345:d5072a35054a53629a1122ee2dc8bda2$"
+}
+}

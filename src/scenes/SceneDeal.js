@@ -1,4 +1,6 @@
 import Phaser from "phaser";
+import { GameEvents } from "../objects/Events.js";
+import { LINES_CONFIG } from "../configs/linesConfig.js";
 
 export default class SceneDeal extends Phaser.Scene {
   constructor() {
@@ -17,24 +19,24 @@ export default class SceneDeal extends Phaser.Scene {
     this.reelsManager.startSpin();
 
     this.time.delayedCall(1500, () => {
+      this.events.emit(GameEvents.GAME.REELS_STOPPING);
       this.reelsManager.stopSpin(this.stopBox);
     });
 
     const mainMenu = this.scene.get("SceneMainMenu");
-    mainMenu.events.off("REEL_STOPPED");
 
-    mainMenu.events.on("REEL_STOPPED", (index) => {
+    mainMenu.events.off(GameEvents.GAME.REEL_STOPPED);
+    mainMenu.events.on(GameEvents.GAME.REEL_STOPPED, () => {
       this.stoppedCount++;
 
       if (this.stoppedCount === 5) {
-        if (this.winData && this.winData.totalWin > 0) {
-          this.showWin();
-        } else {
-          this.time.delayedCall(200, () => this.final(mainMenu));
-        }
+        this.events.emit(GameEvents.GAME.ALL_STOPPED);
+        if (this.winData.totalWin > 0) this.showWin();
+        else this.time.delayedCall(200, () => this.final(mainMenu));
       }
     });
   }
+
   showWinPopup(totalWin) {
     const bet = 10;
     const ratio = totalWin / bet;
@@ -112,23 +114,60 @@ export default class SceneDeal extends Phaser.Scene {
   }
 
   showWin() {
+    const mainMenu = this.scene.get("SceneMainMenu");
+    mainMenu.panel.setValue("YOUR WIN", this.winData.totalWin);
     this.showWinPopup(this.winData.totalWin);
 
-    this.winData.winningCoords.forEach((coord) => {
-      const symbol = this.reelsManager.getSymbolAt(coord.reel, coord.row);
-      if (symbol) symbol.playAnim();
+    this.winData.winningCoords.forEach((c) => {
+      const s = this.reelsManager.getSymbolAt(c.reel, c.row);
+      if (s) s.playAnim();
     });
 
-    const mainMenu = this.scene.get("SceneMainMenu");
+    this.drawAllWinLines();
+
     this.time.delayedCall(2000, () => this.final(mainMenu));
   }
 
+  drawAllWinLines() {
+    const graphics = this.add.graphics().setDepth(10);
+
+    this.winData.winningLines.forEach((winLine) => {
+      const lineCoords = LINES_CONFIG[winLine.lineIndex];
+
+      graphics.lineStyle(8, 0xffcc00, 1);
+      graphics.beginPath();
+
+      lineCoords.forEach((row, reel) => {
+        const symbol = this.reelsManager.getSymbolAt(reel, row);
+        const x = this.reelsManager.x + this.reelsManager.reels[reel].x;
+        const y = this.reelsManager.y + symbol.y;
+
+        if (reel === 0) graphics.moveTo(x, y);
+        else graphics.lineTo(x, y);
+      });
+
+      graphics.strokePath();
+    });
+
+    this.time.delayedCall(2000, () => graphics.destroy());
+  }
   final(mainMenu) {
     if (this.winData.totalWin > 0) {
       mainMenu.animateBalance(this.winData.newBalance, this.winData.totalWin);
     }
 
-    mainMenu.events.emit("UNLOCK_INTERFACE");
-    this.scene.stop("SceneDeal");
+    mainMenu.events.emit(GameEvents.UI.UNLOCK_INTERFACE);
+
+    if (mainMenu.isAutoSpin) {
+      const delay = this.winData.totalWin > 0 ? 1200 : 500;
+
+      mainMenu.time.delayedCall(delay, () => {
+        if (mainMenu.isAutoSpin) {
+          mainMenu.handleStartSpin();
+        }
+      });
+    }
+
+    this.scene.stop();
   }
 }
