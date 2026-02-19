@@ -7,6 +7,7 @@ import { GameEvents } from "../objects/Events.js";
 
 export default class SceneMainMenu extends Phaser.Scene {
   constructor() {
+    console.log('SceneMainMenu')
     super("SceneMainMenu");
   }
 
@@ -19,7 +20,7 @@ export default class SceneMainMenu extends Phaser.Scene {
     this.isAutoSpin = false;
 
     this.stats = new ServerAnalytics();
-    this.reelsManager = new ReelsManager(this, width / 2, 100);
+    this.reelsManager = new ReelsManager(this, width / 2, 100); // каждый раз будет создаваться ?
     this.panel = new Panel(this, width / 2, height - 100);
     this.popupManager = new PopupManager(this);
 
