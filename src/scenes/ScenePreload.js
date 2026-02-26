@@ -35,6 +35,7 @@ export default class ScenePreload extends Phaser.Scene {
     this.load.image("Exit Icon Hover", "assets/images/Exit Icon Hover.png");
 
     this.load.atlas(
+      //todo в одну строчку
       "symbols",
       "assets/atlas/symbols.png",
       "assets/atlas/symbols.json",
@@ -56,6 +57,8 @@ export default class ScenePreload extends Phaser.Scene {
       "assets/atlas/PopUps1.json",
     );
 
+    //todo сократить, зарефакторить
+    //#region ТУТНАФЛУДИЛ
     this.load.spritesheet("low1An", "assets/sprites/low1An.png", {
       frameWidth: 281,
       frameHeight: 281,
