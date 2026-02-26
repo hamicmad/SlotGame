@@ -6,7 +6,7 @@ export default class FreeSpinsPopup extends BasePopup {
   constructor(scene, spinsCount) {
     super(scene, "PopUps", "FREE SPINS");
 
-    const counterBg = scene.add.image(0, 50, "PopUps", "Pop Up Message Small");
+    const counterBg = scene.add.image(0, 50, "PopUps1", "Pop Up Message Small");
 
     const spinsText = scene.add
       .text(0, 30, `${spinsCount}`, {
@@ -27,9 +27,9 @@ export default class FreeSpinsPopup extends BasePopup {
       { normal: "Button Spin Normal", pressed: "Button Spin Hover" },
       "START",
       "40px",
-      this.baseTextStyle, // Можно прокинуть из сцены или задать тут
+      this.baseTextStyle,
       () => {
-        this.emit("close"); // Это закроет попап и запустит SceneDeal.final()
+        this.emit("close");
       },
     );
 
