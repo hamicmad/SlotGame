@@ -1,0 +1,22 @@
+@font-face {
+  font-family: "Dosis";
+  src: url("./assets/fonts/Dosis.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap; /* Оптимизация загрузки */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+#game-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

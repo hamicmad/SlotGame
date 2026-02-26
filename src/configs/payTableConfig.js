@@ -12,3 +12,9 @@ export const PAYTABLE = {
 
   9: { 3: 100, 4: 800, 5: 5000 },
 };
+
+export const FREE_SPINS_CONFIG = {
+  3: 10, // 3 SCATTER = 10 фриспинов
+  4: 15, // 4 SCATTER = 15 фриспинов
+  5: 20, // 5 SCATTER = 20 фриспинов
+};

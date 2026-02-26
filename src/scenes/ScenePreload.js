@@ -97,6 +97,10 @@ export default class ScenePreload extends Phaser.Scene {
       frameWidth: 281,
       frameHeight: 281,
     });
+    this.load.spritesheet("scatterAn", "assets/sprites/scatterAn.png", {
+      frameWidth: 281,
+      frameHeight: 281,
+    });
     this.load.font("Dosis", "assets/fonts/Dosis.ttf");
 
     this.load.on("progress", (value) => {
@@ -122,6 +126,7 @@ export default class ScenePreload extends Phaser.Scene {
       "high4An",
       "high5An",
       "wildAn",
+      "scatterAn",
     ];
 
     anKeys.forEach((sheetKey, i) => {

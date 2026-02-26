@@ -10,6 +10,7 @@ export const SYMBOLS_CONFIG = {
     7: "high4",
     8: "high5",
     9: "wild",
+    10: "scatter",
   },
 
   BLUR: {
@@ -23,6 +24,7 @@ export const SYMBOLS_CONFIG = {
     7: "high4Blur",
     8: "high5Blur",
     9: "wildBlur",
+    10: "scatterBlur",
   },
 
   REEL: {

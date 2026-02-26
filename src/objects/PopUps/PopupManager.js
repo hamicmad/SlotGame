@@ -2,6 +2,7 @@ import SettingsPopup from "./SettingsPopup.js";
 import PaytablePopup from "./PaytablePopup.js";
 import HelpPopup from "./HelpPopup.js";
 import NotifyPopup from "./NotifyPopup.js";
+import FreeSpinsPopup from "./FreeSpinsPopup.js";
 
 export default class PopupManager extends Phaser.GameObjects.Container {
   constructor(scene) {
@@ -10,7 +11,12 @@ export default class PopupManager extends Phaser.GameObjects.Container {
     this.overlay = scene.add
       .rectangle(0, 0, scene.scale.width, scene.scale.height, 0x000000, 0.7)
       .setInteractive();
-    this.overlay.on("pointerdown", () => this.hide());
+
+    this.overlay.on("pointerdown", () => {
+      if (this.currentType !== "FREE_SPINS") {
+        this.hide();
+      }
+    });
 
     this.add(this.overlay);
     this.setVisible(false);
@@ -18,6 +24,7 @@ export default class PopupManager extends Phaser.GameObjects.Container {
   }
 
   show(type, data = null) {
+    this.currentType = type;
     if (this.current) this.current.destroy();
 
     switch (type) {
@@ -31,18 +38,22 @@ export default class PopupManager extends Phaser.GameObjects.Container {
         this.current = new HelpPopup(this.scene);
         break;
       case "NOTIFY":
-        const msg =
-          typeof data === "string" ? data : data?.message || "Произошла ошибка";
+        const msg = typeof data === "string" ? data : data?.message || "Ошибка";
         this.current = new NotifyPopup(this.scene, msg);
         break;
+      case "FREE_SPINS":
+        this.current = new FreeSpinsPopup(this.scene, data);
+        break;
       default:
-        console.error("Unknown popup:", type);
         return;
     }
 
-    this.current.on("close", () => this.hide());
-    this.add(this.current);
+    this.current.on("close", () => {
+      this.hide();
+      this.emit("close");
+    });
 
+    this.add(this.current);
     this.setVisible(true);
     this.setDepth(2000);
     this.setScale(0.5);
@@ -58,6 +69,7 @@ export default class PopupManager extends Phaser.GameObjects.Container {
   }
 
   hide() {
+    this.currentType = null;
     this.scene.tweens.add({
       targets: this,
       scale: 0.8,

@@ -14,17 +14,13 @@ export default class SceneMainMenu extends Phaser.Scene {
     const { width, height } = this.scale;
     this.add.image(width / 2, height / 2, "main_bg");
 
-    this.currentTotalBet = 200;
-    this.currentLines = 20;
     this.isAutoSpin = false;
-
     this.stats = new ServerAnalytics();
     this.reelsManager = new ReelsManager(this, width / 2, 100);
     this.panel = new Panel(this, width / 2, height - 100);
     this.popupManager = new PopupManager(this);
 
     this.reelsManager.fill(Array(5).fill([0, 1, 2]));
-
     this.syncPanel();
 
     this.events.on(GameEvents.UI.START_SPIN, () => this.handleStartSpin());
@@ -34,54 +30,45 @@ export default class SceneMainMenu extends Phaser.Scene {
     );
 
     this.events.on(GameEvents.UI.CHANGE_LINES, (step) => {
-      this.currentLines = Phaser.Math.Clamp(this.currentLines + step, 1, 20);
-
-      this.stats.activeLines = this.currentLines;
+      this.stats.activeLines = Phaser.Math.Clamp(
+        this.stats.activeLines + step,
+        1,
+        20,
+      );
       this.syncPanel();
     });
 
-    this.events.on(GameEvents.UI.CHANGE_BET, (step) => {
-      const change = step * 10;
-
-      this.currentTotalBet = Phaser.Math.Clamp(
-        this.currentTotalBet + change,
-        10,
-        2000,
-      );
-
+    this.events.on(GameEvents.UI.CHANGE_BET, (direction) => {
+      this.stats.changeBetStep(direction);
       this.syncPanel();
     });
 
     this.events.on(GameEvents.UI.MAX_BET, () => {
-      const currentBalance = this.stats.getBalance();
-      if (currentBalance < 10) return;
-
-      this.currentTotalBet = Math.floor(currentBalance / 10) * 10;
+      this.stats.setMaxBet();
       this.syncPanel();
     });
 
     this.events.on(GameEvents.UI.TOGGLE_AUTO, () => {
       this.isAutoSpin = !this.isAutoSpin;
+      if (this.panel.updateAutoSpinState)
+        this.panel.updateAutoSpinState(this.isAutoSpin);
       if (this.isAutoSpin && !this.panel.isLocked) this.handleStartSpin();
     });
 
-    this.events.on(GameEvents.GAME.SHOW_POPUP, (type, data) => {
-      this.popupManager.show(type, data);
-    });
-    this.events.on(GameEvents.UI.OPEN_PAYTABLE, () => {
-      this.popupManager.show("PAYTABLE");
-    });
-    this.events.on("INSUFFICIENT_FUNDS", () => {
-      this.popupManager.show("NOTIFY", "НЕДОСТАТОЧНО СРЕДСТВ");
-    });
+    this.events.on(GameEvents.GAME.SHOW_POPUP, (type, data) =>
+      this.popupManager.show(type, data),
+    );
+    this.events.on(GameEvents.UI.OPEN_PAYTABLE, () =>
+      this.popupManager.show("PAYTABLE"),
+    );
+    this.events.on("INSUFFICIENT_FUNDS", () =>
+      this.popupManager.show("NOTIFY", "НЕДОСТАТОЧНО СРЕДСТВ"),
+    );
   }
 
   syncPanel() {
-    this.stats.totalBet = this.currentTotalBet;
-    this.stats.activeLines = this.currentLines;
-
-    this.panel.setValue("TOTAL BET", this.currentTotalBet);
-    this.panel.setValue("LINES", this.currentLines);
+    this.panel.setValue("TOTAL BET", this.stats.totalBet);
+    this.panel.setValue("LINES", this.stats.activeLines);
     this.panel.setValue("BALANCE", this.stats.getBalance());
   }
 
@@ -89,9 +76,12 @@ export default class SceneMainMenu extends Phaser.Scene {
     const result = this.stats.getNextSpin();
 
     if (result) {
+      this.panel.setValue("BALANCE", result.balanceBeforeSpin);
+
       this.panel.setValue("YOUR WIN", 0);
-      this.panel.setValue("BALANCE", result.newBalance - result.totalWin);
+
       this.panel.setLocked(true);
+
       this.scene.launch("SceneDeal", {
         stopBox: result.stopBox,
         reelsManager: this.reelsManager,
@@ -99,20 +89,34 @@ export default class SceneMainMenu extends Phaser.Scene {
       });
     } else {
       this.isAutoSpin = false;
+      if (this.panel.updateAutoSpinState) {
+        this.panel.updateAutoSpinState(false);
+      }
       this.panel.setLocked(false);
       this.events.emit("INSUFFICIENT_FUNDS");
     }
   }
 
-  animateBalance(targetBalance, winAmount) {
-    let displayObj = { val: targetBalance - winAmount };
+  exitFreeSpins() {
+    this.panel.setFreeSpinMode(false);
+    this.syncPanel();
+  }
+
+  animateBalance(targetBalance, winAmount, startBalance = null) {
+    const startValue =
+      startBalance !== null ? startBalance : targetBalance - winAmount;
+
+    let displayObj = { val: startValue };
     this.tweens.add({
       targets: displayObj,
       val: targetBalance,
       duration: 1000,
-      onUpdate: () =>
-        this.panel.setValue("BALANCE", Math.floor(displayObj.val)),
-      onComplete: () => this.panel.setValue("BALANCE", targetBalance),
+      onUpdate: () => {
+        this.panel.setValue("BALANCE", Math.floor(displayObj.val));
+      },
+      onComplete: () => {
+        this.panel.setValue("BALANCE", targetBalance);
+      },
     });
   }
 

@@ -15,7 +15,10 @@ export default class SceneDeal extends Phaser.Scene {
   }
 
   create() {
-    this.stoppedCount = 0;
+    const mainMenu = this.scene.get("SceneMainMenu");
+
+    mainMenu.events.off(GameEvents.GAME.REEL_STOPPED);
+
     this.reelsManager.startSpin();
 
     this.time.delayedCall(1500, () => {
@@ -23,65 +26,86 @@ export default class SceneDeal extends Phaser.Scene {
       this.reelsManager.stopSpin(this.stopBox);
     });
 
-    const mainMenu = this.scene.get("SceneMainMenu");
-
-    mainMenu.events.off(GameEvents.GAME.REEL_STOPPED);
     mainMenu.events.on(GameEvents.GAME.REEL_STOPPED, () => {
       this.stoppedCount++;
-
       if (this.stoppedCount === 5) {
-        this.events.emit(GameEvents.GAME.ALL_STOPPED);
-        if (this.winData.totalWin > 0) this.showWin();
-        else this.time.delayedCall(200, () => this.final(mainMenu));
+        this.handleAllStopped(mainMenu);
       }
     });
   }
 
-  showWinPopup(totalWin) {
-    const bet = 10;
-    const ratio = totalWin / bet;
-    let texture = "";
-    let isTextOnly = false;
+  handleAllStopped(mainMenu) {
+    this.events.emit(GameEvents.GAME.ALL_STOPPED);
 
-    if (ratio >= 50) {
-      texture = "megaWin";
-    } else if (ratio >= 20) {
-      texture = "hugeWin";
-    } else if (ratio >= 10) {
-      isTextOnly = true;
+    if (this.winData.totalWin > 0 || this.winData.freeSpinsAwarded > 0) {
+      this.showWinSequence(mainMenu);
+    } else {
+      this.time.delayedCall(200, () => this.final(mainMenu));
+    }
+  }
+
+  showWinSequence(mainMenu) {
+    this.winData.winningCoords.forEach((c) => {
+      const s = this.reelsManager.getSymbolAt(c.reel, c.row);
+      if (s && s.playAnim) s.playAnim();
+    });
+
+    if (this.winData.totalWin > 0) {
+      mainMenu.panel.setValue("YOUR WIN", this.winData.totalWin);
+      this.showWinPopup(this.winData.totalWin);
+      this.drawAllWinLines();
     }
 
-    if (!texture && !isTextOnly) return;
+    if (this.winData.freeSpinsAwarded > 0) {
+      this.time.delayedCall(2000, () => {
+        mainMenu.popupManager.show("FREE_SPINS", this.winData.freeSpinsAwarded);
+        mainMenu.popupManager.once("close", () => {
+          this.final(mainMenu, true);
+        });
+      });
+    } else {
+      const delay = this.winData.totalWin > 0 ? 2000 : 500;
+      this.time.delayedCall(delay, () => this.final(mainMenu));
+    }
+  }
+
+  showWinPopup(totalWin) {
+    const currentBet = this.winData.isFreeSpin
+      ? this.winData.bet * this.winData.activeLines
+      : this.winData.totalBet;
+
+    const ratio = totalWin / (currentBet || 200);
+
+    let texture = "";
+    let isBigWin = false;
+
+    if (ratio >= 50) texture = "megaWin";
+    else if (ratio >= 20) texture = "hugeWin";
+    else if (ratio >= 10) isBigWin = true;
+
+    if (!texture && !isBigWin) return;
 
     const { width, height } = this.scale;
     const targets = [];
 
-    if (!isTextOnly) {
-      const popup = this.add
-        .image(width / 2, height / 2, texture)
-        .setDepth(100)
-        .setScale(0);
-      targets.push(popup);
-    }
+    const title = texture
+      ? this.add.image(width / 2, height / 2 - 50, texture)
+      : this.add
+          .text(width / 2, height / 2 - 50, "BIG WIN", {
+            fontSize: "110px",
+            fill: "#ffcc00",
+            stroke: "#663300",
+            strokeThickness: 10,
+            fontFamily: "Arial Black",
+          })
+          .setOrigin(0.5);
 
-    if (isTextOnly) {
-      const bigWinTitle = this.add
-        .text(width / 2, height / 2 - 50, "BIG WIN", {
-          fontSize: "110px",
-          fill: "#ffcc00",
-          stroke: "#663300",
-          strokeThickness: 10,
-          fontFamily: "Arial Black",
-        })
-        .setOrigin(0.5)
-        .setDepth(100)
-        .setScale(0);
-      targets.push(bigWinTitle);
-    }
+    title.setDepth(100).setScale(0);
+    targets.push(title);
 
     const winText = this.add
-      .text(width / 2, height / 2 + 200, `+${totalWin}`, {
-        fontSize: "82px",
+      .text(width / 2, height / 2 + 150, `+${Math.floor(totalWin)}`, {
+        fontSize: "90px",
         fill: "#fff",
         stroke: "#000",
         strokeThickness: 8,
@@ -104,67 +128,64 @@ export default class SceneDeal extends Phaser.Scene {
             alpha: 0,
             scale: 1.2,
             duration: 500,
-            onComplete: () => {
-              targets.forEach((t) => t.destroy());
-            },
+            onComplete: () => targets.forEach((t) => t.destroy()),
           });
         });
       },
     });
   }
 
-  showWin() {
-    const mainMenu = this.scene.get("SceneMainMenu");
-    mainMenu.panel.setValue("YOUR WIN", this.winData.totalWin);
-    this.showWinPopup(this.winData.totalWin);
-
-    this.winData.winningCoords.forEach((c) => {
-      const s = this.reelsManager.getSymbolAt(c.reel, c.row);
-      if (s) s.playAnim();
-    });
-
-    this.drawAllWinLines();
-
-    this.time.delayedCall(2000, () => this.final(mainMenu));
-  }
-
   drawAllWinLines() {
     const graphics = this.add.graphics().setDepth(10);
-
     this.winData.winningLines.forEach((winLine) => {
       const lineCoords = LINES_CONFIG[winLine.lineIndex];
-
       graphics.lineStyle(8, 0xffcc00, 1);
       graphics.beginPath();
 
       lineCoords.forEach((row, reel) => {
         const symbol = this.reelsManager.getSymbolAt(reel, row);
-        const x = this.reelsManager.x + this.reelsManager.reels[reel].x;
-        const y = this.reelsManager.y + symbol.y;
-
-        if (reel === 0) graphics.moveTo(x, y);
-        else graphics.lineTo(x, y);
+        if (symbol) {
+          const x = this.reelsManager.x + this.reelsManager.reels[reel].x;
+          const y = this.reelsManager.y + symbol.y;
+          if (reel === 0) graphics.moveTo(x, y);
+          else graphics.lineTo(x, y);
+        }
       });
-
       graphics.strokePath();
     });
-
     this.time.delayedCall(2000, () => graphics.destroy());
   }
-  final(mainMenu) {
+
+  final(mainMenu, fromFS = false) {
+    mainMenu.events.off(GameEvents.GAME.REEL_STOPPED);
+
     if (this.winData.totalWin > 0) {
-      mainMenu.animateBalance(this.winData.newBalance, this.winData.totalWin);
+      mainMenu.animateBalance(
+        this.winData.newBalance,
+        this.winData.totalWin,
+        this.winData.balanceBeforeSpin,
+      );
     }
 
-    mainMenu.events.emit(GameEvents.UI.UNLOCK_INTERFACE);
+    if (this.winData.freeSpinsRemaining > 0) {
+      mainMenu.panel.setFreeSpinMode(true, this.winData.freeSpinsRemaining);
+    } else if (
+      this.winData.isFreeSpin &&
+      this.winData.freeSpinsRemaining === 0
+    ) {
+      mainMenu.exitFreeSpins();
+    }
 
-    if (mainMenu.isAutoSpin) {
-      const delay = this.winData.totalWin > 0 ? 1200 : 500;
+    const keepLocked =
+      mainMenu.isAutoSpin || this.winData.freeSpinsRemaining > 0;
+    if (!keepLocked) {
+      mainMenu.panel.setLocked(false);
+    }
 
+    if (keepLocked) {
+      const delay = this.winData.totalWin > 0 ? 1500 : 600;
       mainMenu.time.delayedCall(delay, () => {
-        if (mainMenu.isAutoSpin) {
-          mainMenu.handleStartSpin();
-        }
+        mainMenu.handleStartSpin();
       });
     }
 

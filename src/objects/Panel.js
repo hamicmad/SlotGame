@@ -5,18 +5,41 @@ import Button from "./Buttons.js";
 export default class Panel extends Phaser.GameObjects.Container {
   constructor(scene, x, y, startLocked = false) {
     super(scene, x, y);
-    this.isLocked = startLocked;
     this.valueTexts = {};
-    this.isMenuOpen = false;
+    this.titleTexts = {};
     this.subMenuButtons = [];
+    this.isLocked = startLocked;
+    this.isMenuOpen = false;
 
     this.baseTextStyle = {
-      fontFamily: "Dosis, Arial",
-      fontSize: "45px",
+      fontFamily: "Dosis",
+      fontSize: "46px",
       fill: "#ffffff",
       fontWeight: "800",
       stroke: "#ffffff",
-      strokeThickness: 2,
+      strokeThickness: 3,
+      align: "center",
+    };
+
+    this.smallTextStyle = {
+      ...this.baseTextStyle,
+      fontSize: "30px",
+      fontWeight: "800",
+      strokeThickness: 3,
+    };
+
+    this.numberStyle = {
+      ...this.baseTextStyle,
+      fontSize: "36px",
+      fontWeight: "800",
+      strokeThickness: 3,
+    };
+
+    this.freeSpinsStyle = {
+      ...this.numberStyle,
+      fill: "#ffffff",
+      stroke: "#ffffff",
+      strokeThickness: 3,
     };
 
     this.frames = {
@@ -44,47 +67,65 @@ export default class Panel extends Phaser.GameObjects.Container {
   }
 
   initElements() {
-    this.add(
-      new Button(
-        this.scene,
-        0,
-        45,
-        "ui",
-        this.frames.spin,
-        "SPIN",
-        "60px",
-        this.baseTextStyle,
-        () => this.onSpinClick(),
-      ),
+    this.spinBtn = new Button(
+      this.scene,
+      0,
+      45,
+      "ui",
+      this.frames.spin,
+      "SPIN",
+      "70px",
+      {
+        ...this.baseTextStyle,
+        fontSize: "70px",
+        fontWeight: "800",
+        strokeThickness: 2.5,
+      },
+      () => this.onSpinClick(),
     );
-    this.add(
-      new Button(
-        this.scene,
-        -170,
-        45,
-        "ui",
-        this.frames.autoSpin,
-        "MAX\nBET",
-        "45px",
-        this.baseTextStyle,
-        () => this.scene.events.emit(GameEvents.UI.MAX_BET),
-      ),
-    );
-    this.add(
-      new Button(
-        this.scene,
-        170,
-        45,
-        "ui",
-        this.frames.autoSpin,
-        "AUTO\nSPIN",
-        "40px",
-        this.baseTextStyle,
-        () => this.scene.events.emit(GameEvents.UI.TOGGLE_AUTO),
-      ),
-    );
+    this.add(this.spinBtn);
 
-    this.createMenuSystem(840, -820);
+    this.maxBetBtn = new Button(
+      this.scene,
+      -170,
+      45,
+      "ui",
+      this.frames.autoSpin,
+      "MAX\nBET",
+      "42px",
+      {
+        ...this.baseTextStyle,
+        fontSize: "42px",
+        fontWeight: "800",
+        lineSpacing: -15,
+        strokeThickness: 2,
+        padding: { top: 5, bottom: 5 },
+      },
+      () => this.scene.events.emit(GameEvents.UI.MAX_BET),
+    );
+    this.add(this.maxBetBtn);
+
+    this.autoSpinBtn = new Button(
+      this.scene,
+      170,
+      45,
+      "ui",
+      this.frames.autoSpin,
+      "AUTO\nSPIN",
+      "38px",
+      {
+        ...this.baseTextStyle,
+        fontSize: "38px",
+        fontWeight: "800",
+        lineSpacing: -15,
+        strokeThickness: 2,
+        padding: { top: 5, bottom: 5 },
+      },
+      () => this.scene.events.emit(GameEvents.UI.TOGGLE_AUTO),
+    );
+    this.add(this.autoSpinBtn);
+
+    this.createMenuSystem(900, -820);
 
     const fields = [
       {
@@ -127,19 +168,19 @@ export default class Panel extends Phaser.GameObjects.Container {
         frame: this.frames.rules,
         event: GameEvents.GAME.SHOW_POPUP,
         type: "HELP",
-        offX: -246,
+        offX: -305,
       },
       {
         frame: this.frames.info,
         event: GameEvents.UI.OPEN_PAYTABLE,
         type: "PAYTABLE",
-        offX: -163,
+        offX: -205,
       },
       {
         frame: this.frames.settings,
         event: GameEvents.GAME.SHOW_POPUP,
         type: "SETTINGS",
-        offX: -80,
+        offX: -105,
       },
     ];
 
@@ -158,10 +199,8 @@ export default class Panel extends Phaser.GameObjects.Container {
           this.toggleMenu();
         },
       );
-
       btn.setAlpha(0);
       this.add(btn);
-
       this.subMenuButtons.push({
         obj: btn,
         targetX: x + config.offX,
@@ -187,7 +226,6 @@ export default class Panel extends Phaser.GameObjects.Container {
   toggleMenu() {
     if (this.isLocked) return;
     this.isMenuOpen = !this.isMenuOpen;
-
     this.subMenuButtons.forEach((item, i) => {
       this.scene.tweens.add({
         targets: item.obj,
@@ -211,16 +249,17 @@ export default class Panel extends Phaser.GameObjects.Container {
     onPlus,
   ) {
     const titleY = label === "BALANCE" || label === "YOUR WIN" ? 15 : 10;
+
     const title = this.scene.add
-      .text(x, titleY, label, { ...this.baseTextStyle, fontSize: "32px" })
+      .text(x, titleY, label, this.smallTextStyle)
       .setOrigin(0.5);
+
+    this.titleTexts[label] = title;
+
     const plate = this.scene.add.image(x, y, frameKey);
+
     const valText = this.scene.add
-      .text(x, y, startValue, {
-        ...this.baseTextStyle,
-        fontFamily: "Arial",
-        fontSize: "32px",
-      })
+      .text(x, y, startValue, this.numberStyle)
       .setOrigin(0.5);
 
     this.add([title, plate, valText]);
@@ -228,6 +267,7 @@ export default class Panel extends Phaser.GameObjects.Container {
 
     if (hasButtons) {
       const offset = plate.width / 2 - 30;
+
       this.add(
         new Button(
           this.scene,
@@ -257,17 +297,56 @@ export default class Panel extends Phaser.GameObjects.Container {
     }
   }
 
+  setFreeSpinMode(isActive, remainingCount = 0) {
+    const betTitle = this.titleTexts["TOTAL BET"];
+    const betValue = this.valueTexts["TOTAL BET"];
+
+    if (!betTitle || !betValue) return;
+
+    if (isActive) {
+      betTitle.setText("SPINS LEFT");
+      betTitle.setStyle(this.smallTextStyle);
+
+      betValue.setStyle(this.freeSpinsStyle);
+      betValue.setText(String(remainingCount));
+    } else {
+      betTitle.setText("TOTAL BET");
+      betTitle.setStyle(this.smallTextStyle);
+      betValue.setStyle(this.numberStyle);
+    }
+  }
+
   setLocked(locked) {
     this.isLocked = locked;
     if (this.isMenuOpen && locked) this.toggleMenu();
+
     this.list.forEach((child) => {
-      if (child instanceof Button) child.setLocked(locked);
+      if (child instanceof Button) {
+        const isSubMenu = this.subMenuButtons.some(
+          (item) => item.obj === child,
+        );
+
+        if (isSubMenu && !this.isMenuOpen) {
+          child.setAlpha(0);
+        } else if (child === this.autoSpinBtn) {
+          child.setLocked(locked && !this.autoSpinBtn.isToggled);
+        } else {
+          child.setLocked(locked);
+        }
+      }
     });
   }
 
+  updateAutoSpinState(isActive) {
+    if (this.autoSpinBtn) {
+      this.autoSpinBtn.setToggle(isActive);
+    }
+  }
+
   setValue(label, newValue) {
-    if (this.valueTexts[label])
+    if (this.valueTexts[label]) {
       this.valueTexts[label].setText(String(newValue));
+    }
   }
 
   onSpinClick() {

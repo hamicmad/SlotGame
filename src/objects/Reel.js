@@ -63,6 +63,7 @@ export default class Reel extends Phaser.GameObjects.Container {
         if (this.stopping && this.symbolsPlaced < 3) {
           const mapping = [2, 1, 0];
           const targetIndex = mapping[this.symbolsPlaced];
+
           symbol.setSymbolId(this.targetIds[targetIndex]);
 
           if (targetIndex === 0) {
@@ -71,13 +72,15 @@ export default class Reel extends Phaser.GameObjects.Container {
           }
           this.symbolsPlaced++;
         } else {
-          symbol.setSymbolId(Phaser.Math.Between(0, 9));
+          const randomId = Phaser.Math.Between(0, 9);
+          symbol.setSymbolId(randomId);
         }
       }
     });
 
     if (this.shouldFinalize && this.upSymbol) {
       const targetY = this.symbolHeight * 0.5;
+
       if (this.upSymbol.y + speed >= targetY) {
         this.completeStop();
       }
@@ -89,6 +92,13 @@ export default class Reel extends Phaser.GameObjects.Container {
     this.shouldFinalize = false;
 
     this.symbols.sort((a, b) => Math.round(a.y) - Math.round(b.y));
+
+    const currentIds = [
+      this.symbols[1].symbolId,
+      this.symbols[2].symbolId,
+      this.symbols[3].symbolId,
+    ];
+
     const offset = this.symbolHeight / 2;
     let completedTweens = 0;
 
@@ -104,6 +114,12 @@ export default class Reel extends Phaser.GameObjects.Container {
         onComplete: () => {
           completedTweens++;
           if (completedTweens === this.symbols.length) {
+            const finalIds = [
+              this.symbols[1].symbolId,
+              this.symbols[2].symbolId,
+              this.symbols[3].symbolId,
+            ];
+
             this.scene.events.emit(GameEvents.GAME.REEL_STOPPED, this.index);
           }
         },

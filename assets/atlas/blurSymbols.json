@@ -81,7 +81,7 @@
       "sourceSize": { "w": 250, "h": 300 }
     },
     {
-      "filename": "Scatter Animation Blurred",
+      "filename": "scatterBlur",
       "frame": { "x": 750, "y": 300, "w": 250, "h": 300 },
       "rotated": false,
       "trimmed": false,
