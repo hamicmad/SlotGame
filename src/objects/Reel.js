@@ -1,7 +1,7 @@
-import Phaser from "phaser";
-import Symbol from "./Symbol.js";
-import { SYMBOLS_CONFIG } from "../configs/symbolsConfig.js";
-import { GameEvents } from "../objects/Events.js";
+import Phaser from 'phaser';
+import Symbol from './Symbol.js';
+import { SYMBOLS_CONFIG } from '../configs/symbolsConfig.js';
+import { GameEvents } from '../objects/Events.js';
 
 export default class Reel extends Phaser.GameObjects.Container {
   constructor(scene, x, y, index) {
@@ -93,11 +93,7 @@ export default class Reel extends Phaser.GameObjects.Container {
 
     this.symbols.sort((a, b) => Math.round(a.y) - Math.round(b.y));
 
-    const currentIds = [
-      this.symbols[1].symbolId,
-      this.symbols[2].symbolId,
-      this.symbols[3].symbolId,
-    ];
+    const currentIds = [this.symbols[1].symbolId, this.symbols[2].symbolId, this.symbols[3].symbolId];
 
     const offset = this.symbolHeight / 2;
     let completedTweens = 0;
@@ -109,16 +105,16 @@ export default class Reel extends Phaser.GameObjects.Container {
       this.scene.tweens.add({
         targets: symbol,
         y: finalY,
-        duration: 600,
-        ease: "Back.out",
+        duration: 250,
+        ease: 'Back.out',
+        easeParams: [10],
+        onStart: () => {
+          this.scene.sound.play('stop_sound', { volume: 0.6 });
+        },
         onComplete: () => {
           completedTweens++;
           if (completedTweens === this.symbols.length) {
-            const finalIds = [
-              this.symbols[1].symbolId,
-              this.symbols[2].symbolId,
-              this.symbols[3].symbolId,
-            ];
+            const finalIds = [this.symbols[1].symbolId, this.symbols[2].symbolId, this.symbols[3].symbolId];
 
             this.scene.events.emit(GameEvents.GAME.REEL_STOPPED, this.index);
           }

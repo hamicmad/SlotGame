@@ -1,12 +1,12 @@
-import BasePopup from "./BasePopup.js";
-import { PAYTABLE } from "../../configs/payTableConfig.js";
-import { LINES_CONFIG } from "../../configs/linesConfig.js";
-import { SYMBOLS_CONFIG } from "../../configs/symbolsConfig.js";
-import Button from "../Buttons.js";
+import BasePopup from './BasePopup.js';
+import { PAYTABLE } from '../../configs/payTableConfig.js';
+import { LINES_CONFIG } from '../../configs/linesConfig.js';
+import { SYMBOLS_CONFIG } from '../../configs/symbolsConfig.js';
+import Button from '../Buttons.js';
 
 export default class PaytablePopup extends BasePopup {
   constructor(scene) {
-    super(scene, "Pop Up Paytable", "PAYTABLE & LINES");
+    super(scene, 'Pop Up Paytable', 'PAYTABLE & LINES');
 
     this.pageContent = this.scene.add.container(0, 0);
     this.add(this.pageContent);
@@ -40,11 +40,11 @@ export default class PaytablePopup extends BasePopup {
       this.scene,
       580,
       320,
-      "PopUps",
-      { normal: "Icon Next Normal", pressed: "Icon Next Hover" },
-      "",
-      "",
-      { fill: "#fff" },
+      'PopUps',
+      { normal: 'Icon Next Normal', pressed: 'Icon Next Hover' },
+      '',
+      '',
+      { fill: '#fff' },
       () => this.showPage(2),
     );
     this.pageContent.add(nextBtn);
@@ -64,23 +64,21 @@ export default class PaytablePopup extends BasePopup {
       const y = startY + row * stepY;
 
       const symbolName = SYMBOLS_CONFIG.MAP[id];
-      const img = this.scene.add
-        .image(x, y, "symbols", symbolName)
-        .setScale(0.7);
+      const img = this.scene.add.image(x, y, 'symbols', symbolName).setScale(0.7);
 
       const data = PAYTABLE[id];
-      let payoutText = "";
+      let payoutText = '';
       if (data[5]) payoutText += `5 - ${data[5]}\n`;
       if (data[4]) payoutText += `4 - ${data[4]}\n`;
       if (data[3]) payoutText += `3 - ${data[3]}`;
 
       const txt = this.scene.add
         .text(x + 105, y, payoutText, {
-          fontSize: "26px",
-          fontFamily: "Arial",
-          fill: "#000000",
-          fontWeight: "800",
-          stroke: "#1a0303",
+          fontSize: '26px',
+          fontFamily: 'Arial',
+          fill: '#000000',
+          fontWeight: '800',
+          stroke: '#1a0303',
           strokeThickness: 2,
         })
         .setOrigin(0, 0.5);
@@ -92,11 +90,11 @@ export default class PaytablePopup extends BasePopup {
       this.scene,
       -580,
       320,
-      "PopUps",
-      { normal: "Icon Preview Normal", pressed: "Icon Preview Hover" },
-      "",
-      "",
-      { fill: "#fff" },
+      'PopUps',
+      { normal: 'Icon Preview Normal', pressed: 'Icon Preview Hover' },
+      '',
+      '',
+      { fill: '#fff' },
       () => this.showPage(1),
     );
     this.pageContent.add(backBtn);
@@ -136,9 +134,9 @@ export default class PaytablePopup extends BasePopup {
 
     const label = this.scene.add
       .text(x, y + 65, `LINE ${index + 1}`, {
-        fontSize: "20px",
-        fill: "#000",
-        fontWeight: "800",
+        fontSize: '20px',
+        fill: '#000',
+        fontWeight: '800',
       })
       .setOrigin(0.5);
     this.pageContent.add(label);

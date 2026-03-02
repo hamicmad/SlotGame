@@ -1,17 +1,17 @@
-import Phaser from "phaser";
+import Phaser from 'phaser';
 
 export default class SceneBoot extends Phaser.Scene {
   constructor() {
-    super("SceneBoot");
+    super('SceneBoot');
   }
 
   preload() {
-    this.load.image("bar_empty", "assets/images/Load Bar Empty.png");
-    this.load.image("bar_full", "assets/images/Load Bar Full.png");
-    this.load.image("bar_mask", "assets/images/Load Bar Mask.png");
+    this.load.image('bar_empty', 'assets/images/Load Bar Empty.png');
+    this.load.image('bar_full', 'assets/images/Load Bar Full.png');
+    this.load.image('bar_mask', 'assets/images/Load Bar Mask.png');
   }
 
   create() {
-    this.scene.start("ScenePreload");
+    this.scene.start('ScenePreload');
   }
 }

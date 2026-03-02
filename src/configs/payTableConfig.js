@@ -14,7 +14,7 @@ export const PAYTABLE = {
 };
 
 export const FREE_SPINS_CONFIG = {
-  3: 10, // 3 SCATTER = 10 фриспинов
-  4: 15, // 4 SCATTER = 15 фриспинов
-  5: 20, // 5 SCATTER = 20 фриспинов
+  3: 3,
+  4: 4,
+  5: 5,
 };

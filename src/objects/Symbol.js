@@ -1,9 +1,9 @@
-import Phaser from "phaser";
-import { SYMBOLS_CONFIG } from "../configs/symbolsConfig.js";
+import Phaser from 'phaser';
+import { SYMBOLS_CONFIG } from '../configs/symbolsConfig.js';
 
 export default class Symbol extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y, symbolId) {
-    super(scene, x, y, "symbols", SYMBOLS_CONFIG.MAP[symbolId]);
+    super(scene, x, y, 'symbols', SYMBOLS_CONFIG.MAP[symbolId]);
     this.scene.add.existing(this);
     this.setOrigin(0.5, 0.5);
     this.symbolId = symbolId;
@@ -11,10 +11,8 @@ export default class Symbol extends Phaser.GameObjects.Sprite {
   }
 
   blurSymbols(isBlur) {
-    const frameName = isBlur
-      ? SYMBOLS_CONFIG.BLUR[this.symbolId]
-      : SYMBOLS_CONFIG.MAP[this.symbolId];
-    const atlasKey = isBlur ? "blurSymbols" : "symbols";
+    const frameName = isBlur ? SYMBOLS_CONFIG.BLUR[this.symbolId] : SYMBOLS_CONFIG.MAP[this.symbolId];
+    const atlasKey = isBlur ? 'blurSymbols' : 'symbols';
 
     this.setTexture(atlasKey, frameName);
     this.setDisplaySize(250, 250);
@@ -22,7 +20,7 @@ export default class Symbol extends Phaser.GameObjects.Sprite {
 
   setSymbolId(newId) {
     this.symbolId = newId;
-    const isCurrentlyBlurred = this.texture.key === "blurSymbols";
+    const isCurrentlyBlurred = this.texture.key === 'blurSymbols';
     this.blurSymbols(isCurrentlyBlurred);
   }
 
@@ -31,7 +29,7 @@ export default class Symbol extends Phaser.GameObjects.Sprite {
     if (this.scene.anims.exists(anKey)) {
       this.setDepth(5);
       this.play(anKey);
-      this.once("animationcomplete", () => {
+      this.once('animationcomplete', () => {
         this.setDepth(1);
         this.blurSymbols(false);
       });

@@ -1,6 +1,6 @@
-import Phaser from "phaser";
-import { GameEvents } from "../objects/Events.js";
-import Button from "./Buttons.js";
+import Phaser from 'phaser';
+import { GameEvents } from '../objects/Events.js';
+import Button from './Buttons.js';
 
 export default class Panel extends Phaser.GameObjects.Container {
   constructor(scene, x, y, startLocked = false) {
@@ -12,53 +12,53 @@ export default class Panel extends Phaser.GameObjects.Container {
     this.isMenuOpen = false;
 
     this.baseTextStyle = {
-      fontFamily: "Dosis",
-      fontSize: "46px",
-      fill: "#ffffff",
-      fontWeight: "800",
-      stroke: "#ffffff",
+      fontFamily: 'Dosis',
+      fontSize: '46px',
+      fill: '#ffffff',
+      fontWeight: '800',
+      stroke: '#ffffff',
       strokeThickness: 3,
-      align: "center",
+      align: 'center',
     };
 
     this.smallTextStyle = {
       ...this.baseTextStyle,
-      fontSize: "30px",
-      fontWeight: "800",
+      fontSize: '30px',
+      fontWeight: '800',
       strokeThickness: 3,
     };
 
     this.numberStyle = {
       ...this.baseTextStyle,
-      fontSize: "36px",
-      fontWeight: "800",
+      fontSize: '36px',
+      fontWeight: '800',
       strokeThickness: 3,
     };
 
     this.freeSpinsStyle = {
       ...this.numberStyle,
-      fill: "#ffffff",
-      stroke: "#ffffff",
+      fill: '#ffffff',
+      stroke: '#ffffff',
       strokeThickness: 3,
     };
 
     this.frames = {
-      spin: { normal: "Button Spin Normal", pressed: "Button Spin Hover" },
+      spin: { normal: 'Button Spin Normal', pressed: 'Button Spin Hover' },
       autoSpin: {
-        normal: "Button Auto Spin Normal",
-        pressed: "Button Auto Spin Hover",
+        normal: 'Button Auto Spin Normal',
+        pressed: 'Button Auto Spin Hover',
       },
-      minus: { normal: "Minus Button Normal", pressed: "Minus Button Hover" },
-      plus: { normal: "Plus Button Normal", pressed: "Plus Button Hover" },
-      menu: { normal: "Button Menu Normal", pressed: "Button Menu Hover" },
-      smallFrame: "smallPlate",
-      bigFrame: "bigPlate",
+      minus: { normal: 'Minus Button Normal', pressed: 'Minus Button Hover' },
+      plus: { normal: 'Plus Button Normal', pressed: 'Plus Button Hover' },
+      menu: { normal: 'Button Menu Normal', pressed: 'Button Menu Hover' },
+      smallFrame: 'smallPlate',
+      bigFrame: 'bigPlate',
       settings: {
-        normal: "Button Settings Normal",
-        pressed: "Button Settings Hover",
+        normal: 'Button Settings Normal',
+        pressed: 'Button Settings Hover',
       },
-      info: { normal: "Button Info Normal", pressed: "Button Info Hover" },
-      rules: { normal: "Button Rules Normal", pressed: "Button Rules Hover" },
+      info: { normal: 'Button Info Normal', pressed: 'Button Info Hover' },
+      rules: { normal: 'Button Rules Normal', pressed: 'Button Rules Hover' },
     };
 
     this.initElements();
@@ -71,14 +71,14 @@ export default class Panel extends Phaser.GameObjects.Container {
       this.scene,
       0,
       45,
-      "ui",
+      'ui',
       this.frames.spin,
-      "SPIN",
-      "70px",
+      'SPIN',
+      '70px',
       {
         ...this.baseTextStyle,
-        fontSize: "70px",
-        fontWeight: "800",
+        fontSize: '70px',
+        fontWeight: '800',
         strokeThickness: 2.5,
       },
       () => this.onSpinClick(),
@@ -89,14 +89,14 @@ export default class Panel extends Phaser.GameObjects.Container {
       this.scene,
       -170,
       45,
-      "ui",
+      'ui',
       this.frames.autoSpin,
-      "MAX\nBET",
-      "42px",
+      'MAX\nBET',
+      '42px',
       {
         ...this.baseTextStyle,
-        fontSize: "42px",
-        fontWeight: "800",
+        fontSize: '42px',
+        fontWeight: '800',
         lineSpacing: -15,
         strokeThickness: 2,
         padding: { top: 5, bottom: 5 },
@@ -109,14 +109,14 @@ export default class Panel extends Phaser.GameObjects.Container {
       this.scene,
       170,
       45,
-      "ui",
+      'ui',
       this.frames.autoSpin,
-      "AUTO\nSPIN",
-      "38px",
+      'AUTO\nSPIN',
+      '38px',
       {
         ...this.baseTextStyle,
-        fontSize: "38px",
-        fontWeight: "800",
+        fontSize: '38px',
+        fontWeight: '800',
         lineSpacing: -15,
         strokeThickness: 2,
         padding: { top: 5, bottom: 5 },
@@ -130,7 +130,7 @@ export default class Panel extends Phaser.GameObjects.Container {
     const fields = [
       {
         x: -650,
-        label: "LINES",
+        label: 'LINES',
         frame: this.frames.smallFrame,
         btns: true,
         onMinus: () => this.scene.events.emit(GameEvents.UI.CHANGE_LINES, -1),
@@ -138,28 +138,17 @@ export default class Panel extends Phaser.GameObjects.Container {
       },
       {
         x: -400,
-        label: "TOTAL BET",
+        label: 'TOTAL BET',
         frame: this.frames.bigFrame,
         btns: true,
         onMinus: () => this.scene.events.emit(GameEvents.UI.CHANGE_BET, -1),
         onPlus: () => this.scene.events.emit(GameEvents.UI.CHANGE_BET, 1),
       },
-      { x: 350, label: "BALANCE", frame: this.frames.bigFrame, btns: false },
-      { x: 600, label: "YOUR WIN", frame: this.frames.smallFrame, btns: false },
+      { x: 350, label: 'BALANCE', frame: this.frames.bigFrame, btns: false },
+      { x: 600, label: 'YOUR WIN', frame: this.frames.smallFrame, btns: false },
     ];
 
-    fields.forEach((f) =>
-      this.createNumericField(
-        f.x,
-        60,
-        f.label,
-        0,
-        f.frame,
-        f.btns,
-        f.onMinus,
-        f.onPlus,
-      ),
-    );
+    fields.forEach((f) => this.createNumericField(f.x, 60, f.label, 0, f.frame, f.btns, f.onMinus, f.onPlus));
   }
 
   createMenuSystem(x, y) {
@@ -167,38 +156,28 @@ export default class Panel extends Phaser.GameObjects.Container {
       {
         frame: this.frames.rules,
         event: GameEvents.GAME.SHOW_POPUP,
-        type: "HELP",
+        type: 'HELP',
         offX: -305,
       },
       {
         frame: this.frames.info,
         event: GameEvents.UI.OPEN_PAYTABLE,
-        type: "PAYTABLE",
+        type: 'PAYTABLE',
         offX: -205,
       },
       {
         frame: this.frames.settings,
         event: GameEvents.GAME.SHOW_POPUP,
-        type: "SETTINGS",
+        type: 'SETTINGS',
         offX: -105,
       },
     ];
 
     menuConfig.forEach((config) => {
-      const btn = new Button(
-        this.scene,
-        x,
-        y,
-        "ui",
-        config.frame,
-        "",
-        "0px",
-        this.baseTextStyle,
-        () => {
-          this.scene.events.emit(config.event, config.type);
-          this.toggleMenu();
-        },
-      );
+      const btn = new Button(this.scene, x, y, 'ui', config.frame, '', '0px', this.baseTextStyle, () => {
+        this.scene.events.emit(config.event, config.type);
+        this.toggleMenu();
+      });
       btn.setAlpha(0);
       this.add(btn);
       this.subMenuButtons.push({
@@ -209,17 +188,7 @@ export default class Panel extends Phaser.GameObjects.Container {
     });
 
     this.add(
-      new Button(
-        this.scene,
-        x,
-        y,
-        "ui",
-        this.frames.menu,
-        "",
-        "0px",
-        this.baseTextStyle,
-        () => this.toggleMenu(),
-      ),
+      new Button(this.scene, x, y, 'ui', this.frames.menu, '', '0px', this.baseTextStyle, () => this.toggleMenu()),
     );
   }
 
@@ -233,34 +202,21 @@ export default class Panel extends Phaser.GameObjects.Container {
         alpha: this.isMenuOpen ? 1 : 0,
         duration: 300,
         delay: i * 50,
-        ease: "Back.out",
+        ease: 'Back.out',
       });
     });
   }
 
-  createNumericField(
-    x,
-    y,
-    label,
-    startValue,
-    frameKey,
-    hasButtons,
-    onMinus,
-    onPlus,
-  ) {
-    const titleY = label === "BALANCE" || label === "YOUR WIN" ? 15 : 10;
+  createNumericField(x, y, label, startValue, frameKey, hasButtons, onMinus, onPlus) {
+    const titleY = label === 'BALANCE' || label === 'YOUR WIN' ? 15 : 10;
 
-    const title = this.scene.add
-      .text(x, titleY, label, this.smallTextStyle)
-      .setOrigin(0.5);
+    const title = this.scene.add.text(x, titleY, label, this.smallTextStyle).setOrigin(0.5);
 
     this.titleTexts[label] = title;
 
     const plate = this.scene.add.image(x, y, frameKey);
 
-    const valText = this.scene.add
-      .text(x, y, startValue, this.numberStyle)
-      .setOrigin(0.5);
+    const valText = this.scene.add.text(x, y, startValue, this.numberStyle).setOrigin(0.5);
 
     this.add([title, plate, valText]);
     this.valueTexts[label] = valText;
@@ -268,49 +224,25 @@ export default class Panel extends Phaser.GameObjects.Container {
     if (hasButtons) {
       const offset = plate.width / 2 - 30;
 
-      this.add(
-        new Button(
-          this.scene,
-          x - offset,
-          y,
-          "ui",
-          this.frames.minus,
-          "",
-          "1px",
-          this.baseTextStyle,
-          onMinus,
-        ),
-      );
-      this.add(
-        new Button(
-          this.scene,
-          x + offset,
-          y,
-          "ui",
-          this.frames.plus,
-          "",
-          "1px",
-          this.baseTextStyle,
-          onPlus,
-        ),
-      );
+      this.add(new Button(this.scene, x - offset, y, 'ui', this.frames.minus, '', '1px', this.baseTextStyle, onMinus));
+      this.add(new Button(this.scene, x + offset, y, 'ui', this.frames.plus, '', '1px', this.baseTextStyle, onPlus));
     }
   }
 
   setFreeSpinMode(isActive, remainingCount = 0) {
-    const betTitle = this.titleTexts["TOTAL BET"];
-    const betValue = this.valueTexts["TOTAL BET"];
+    const betTitle = this.titleTexts['TOTAL BET'];
+    const betValue = this.valueTexts['TOTAL BET'];
 
     if (!betTitle || !betValue) return;
 
     if (isActive) {
-      betTitle.setText("SPINS LEFT");
+      betTitle.setText('SPINS LEFT');
       betTitle.setStyle(this.smallTextStyle);
 
       betValue.setStyle(this.freeSpinsStyle);
       betValue.setText(String(remainingCount));
     } else {
-      betTitle.setText("TOTAL BET");
+      betTitle.setText('TOTAL BET');
       betTitle.setStyle(this.smallTextStyle);
       betValue.setStyle(this.numberStyle);
     }
@@ -322,9 +254,7 @@ export default class Panel extends Phaser.GameObjects.Container {
 
     this.list.forEach((child) => {
       if (child instanceof Button) {
-        const isSubMenu = this.subMenuButtons.some(
-          (item) => item.obj === child,
-        );
+        const isSubMenu = this.subMenuButtons.some((item) => item.obj === child);
 
         if (isSubMenu && !this.isMenuOpen) {
           child.setAlpha(0);

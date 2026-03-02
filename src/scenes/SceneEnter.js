@@ -1,30 +1,25 @@
-import Phaser from "phaser";
+import Phaser from 'phaser';
 
 export default class SceneEnter extends Phaser.Scene {
   constructor() {
-    super("SceneEnter");
+    super('SceneEnter');
   }
 
   create() {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    this.add.image(0, 0, "main_bg").setOrigin(0);
+    this.add.image(0, 0, 'main_bg').setOrigin(0);
 
     const style = {
-      fontFamily: "Arial",
-      fontSize: "64px",
-      fill: "#ffffff",
-      stroke: "#000000",
+      fontFamily: 'Arial',
+      fontSize: '64px',
+      fill: '#ffffff',
+      stroke: '#000000',
       strokeThickness: 6,
     };
 
-    const tapText = this.add.text(
-      width / 2,
-      height / 2 + 200,
-      "TAP TO PLAY",
-      style,
-    );
+    const tapText = this.add.text(width / 2, height / 2 + 200, 'TAP TO PLAY', style);
     tapText.setOrigin(0.5);
 
     this.tweens.add({
@@ -33,11 +28,11 @@ export default class SceneEnter extends Phaser.Scene {
       duration: 1000,
       yoyo: true,
       loop: -1,
-      ease: "Linear",
+      ease: 'Linear',
     });
 
-    this.input.once("pointerdown", () => {
-      this.scene.start("SceneMainMenu");
+    this.input.once('pointerdown', () => {
+      this.scene.start('SceneMainMenu');
     });
   }
 }

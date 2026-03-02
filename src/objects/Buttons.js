@@ -1,4 +1,4 @@
-import Phaser from "phaser";
+import Phaser from 'phaser';
 
 export default class Button extends Phaser.GameObjects.Container {
   constructor(scene, x, y, atlasKey, frames, text, fontSize, style, callback) {
@@ -9,20 +9,18 @@ export default class Button extends Phaser.GameObjects.Container {
     this.isToggled = false;
     this.atlasKey = atlasKey;
 
-    this.image = scene.add
-      .image(0, 0, this.atlasKey, frames.normal)
-      .setInteractive({ useHandCursor: true });
+    this.image = scene.add.image(0, 0, this.atlasKey, frames.normal).setInteractive({ useHandCursor: true });
 
     this.addAt(this.image, 0);
 
     if (text) {
-      const isMultiline = text.includes("\n");
+      const isMultiline = text.includes('\n');
 
       this.text = scene.add
         .text(0, 0, text.toUpperCase(), {
           ...style,
-          fontSize: fontSize || "45px",
-          align: "center",
+          fontSize: fontSize || '45px',
+          align: 'center',
           lineSpacing: isMultiline ? -15 : 0,
         })
         .setOrigin(0.5);
@@ -34,31 +32,32 @@ export default class Button extends Phaser.GameObjects.Container {
       this.add(this.text);
     }
 
-    this.image.on("pointerdown", () => {
+    this.image.on('pointerdown', () => {
       if (this.isLocked) return;
+      this.scene.sound.play('click_sound', { volume: 0.5 });
 
       this.image.setFrame(this.frames.pressed);
 
-      if (this.text) this.text.y = this.text.text.includes("\n") ? -1 : 4;
+      if (this.text) this.text.y = this.text.text.includes('\n') ? -1 : 4;
     });
 
     const onRelease = () => {
       if (this.isToggled) {
         this.image.setFrame(this.frames.pressed);
-        if (this.text) this.text.y = this.text.text.includes("\n") ? -1 : 4;
+        if (this.text) this.text.y = this.text.text.includes('\n') ? -1 : 4;
       } else {
         this.image.setFrame(this.frames.normal);
-        if (this.text) this.text.y = this.text.text.includes("\n") ? -5 : 0;
+        if (this.text) this.text.y = this.text.text.includes('\n') ? -5 : 0;
       }
     };
 
-    this.image.on("pointerup", () => {
+    this.image.on('pointerup', () => {
       if (this.isLocked) return;
       if (this.callback) this.callback();
       onRelease();
     });
 
-    this.image.on("pointerout", onRelease);
+    this.image.on('pointerout', onRelease);
 
     scene.add.existing(this);
   }
@@ -68,10 +67,10 @@ export default class Button extends Phaser.GameObjects.Container {
 
     if (isActive) {
       this.image.setFrame(this.frames.pressed);
-      if (this.text) this.text.y = this.text.text.includes("\n") ? -1 : 4;
+      if (this.text) this.text.y = this.text.text.includes('\n') ? -1 : 4;
     } else {
       this.image.setFrame(this.frames.normal);
-      if (this.text) this.text.y = this.text.text.includes("\n") ? -5 : 0;
+      if (this.text) this.text.y = this.text.text.includes('\n') ? -5 : 0;
     }
   }
 

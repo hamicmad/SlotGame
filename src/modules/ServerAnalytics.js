@@ -1,5 +1,5 @@
-import { LINES_CONFIG } from "../configs/linesConfig.js";
-import { PAYTABLE, FREE_SPINS_CONFIG } from "../configs/payTableConfig.js";
+import { LINES_CONFIG } from '../configs/linesConfig.js';
+import { PAYTABLE, FREE_SPINS_CONFIG } from '../configs/payTableConfig.js';
 
 export default class ServerAnalytics {
   constructor() {
@@ -25,13 +25,8 @@ export default class ServerAnalytics {
 
   changeBetStep(direction) {
     if (this.isFreeSpin) return;
-    const nextIndex = Phaser.Math.Clamp(
-      this.currentStepIndex + direction,
-      0,
-      this.betSteps.length - 1,
-    );
-    if (this.betSteps[nextIndex] * this.activeLines <= this.balance)
-      this.currentStepIndex = nextIndex;
+    const nextIndex = Phaser.Math.Clamp(this.currentStepIndex + direction, 0, this.betSteps.length - 1);
+    if (this.betSteps[nextIndex] * this.activeLines <= this.balance) this.currentStepIndex = nextIndex;
   }
 
   setMaxBet() {
@@ -52,17 +47,13 @@ export default class ServerAnalytics {
       this.freeSpinsTotalBet = this.totalBet;
     }
 
-    const currentTotalBet = wasFreeSpin
-      ? this.freeSpinsTotalBet
-      : this.totalBet;
+    const currentTotalBet = wasFreeSpin ? this.freeSpinsTotalBet : this.totalBet;
     const betPerLine = currentTotalBet / this.activeLines;
 
     if (!wasFreeSpin && this.balance < currentTotalBet) return null;
     if (!wasFreeSpin) this.balance -= currentTotalBet;
 
-    let stopBox = Array.from({ length: 5 }, () =>
-      Array.from({ length: 3 }, () => Math.floor(Math.random() * 11)),
-    );
+    let stopBox = Array.from({ length: 5 }, () => Array.from({ length: 3 }, () => Math.floor(Math.random() * 11)));
 
     if (wasFreeSpin) {
       for (let i = 0; i < 5; i++) {
@@ -103,9 +94,7 @@ export default class ServerAnalytics {
       }
 
       if (targetSymbolId === -1) {
-        let lineHasScatter = line.some(
-          (row, reel) => stopBox[reel][row] === this.SCATTER_ID,
-        );
+        let lineHasScatter = line.some((row, reel) => stopBox[reel][row] === this.SCATTER_ID);
         if (!lineHasScatter) targetSymbolId = this.WILD_ID;
       }
 
@@ -116,8 +105,7 @@ export default class ServerAnalytics {
           else break;
         }
         if (matchCount >= 3) {
-          const payout =
-            (PAYTABLE[targetSymbolId][matchCount] || 0) * betPerLine;
+          const payout = (PAYTABLE[targetSymbolId][matchCount] || 0) * betPerLine;
           if (payout > 0) {
             totalWin += payout;
             winningLines.push({
@@ -126,8 +114,7 @@ export default class ServerAnalytics {
               count: matchCount,
               payout,
             });
-            for (let i = 0; i < matchCount; i++)
-              winningCoords.push({ reel: i, row: line[i] });
+            for (let i = 0; i < matchCount; i++) winningCoords.push({ reel: i, row: line[i] });
           }
         }
       }
@@ -144,8 +131,7 @@ export default class ServerAnalytics {
     if (wasFreeSpin) this.freeSpinsRemaining--;
 
     const allUniqueCoords = [...winningCoords, ...scatterPositions].filter(
-      (v, i, a) =>
-        a.findIndex((t) => t.reel === v.reel && t.row === v.row) === i,
+      (v, i, a) => a.findIndex((t) => t.reel === v.reel && t.row === v.row) === i,
     );
 
     return {
