@@ -45,7 +45,10 @@ export default class SceneDeal extends Phaser.Scene {
   }
 
   showWinSequence(mainMenu) {
-    this.sound.play('win_sound', { volume: 0.6 });
+    const isSoundEnabled = this.registry.get('isSoundEnabled') !== false;
+    if (isSoundEnabled) {
+      this.sound.play('win_sound', { volume: 0.5 });
+    }
     this.winData.winningCoords.forEach((c) => {
       const s = this.reelsManager.getSymbolAt(c.reel, c.row);
       if (s && s.playAnim) s.playAnim();

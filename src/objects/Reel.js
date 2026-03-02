@@ -109,7 +109,10 @@ export default class Reel extends Phaser.GameObjects.Container {
         ease: 'Back.out',
         easeParams: [10],
         onStart: () => {
-          this.scene.sound.play('stop_sound', { volume: 0.6 });
+          const isSoundEnabled = this.scene.registry.get('isSoundEnabled') !== false;
+          if (i === 0 && isSoundEnabled) {
+            this.scene.sound.play('stop_sound', { volume: 0.6 });
+          }
         },
         onComplete: () => {
           completedTweens++;

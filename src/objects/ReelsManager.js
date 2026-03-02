@@ -34,7 +34,10 @@ export default class ReelsManager extends Phaser.GameObjects.Container {
   }
 
   startSpin() {
-    this.scene.sound.play('spin_sound', { volume: 0.5 });
+    const isSoundEnabled = this.scene.registry.get('isSoundEnabled') !== false;
+    if (isSoundEnabled) {
+      this.scene.sound.play('spin_sound', { volume: 0.5 });
+    }
     this.scene.events.emit(GameEvents.GAME.REELS_START);
     this.reels.forEach((reel, i) => {
       this.scene.time.delayedCall(i * 100, () => reel.spin());

@@ -51,6 +51,15 @@ export default class SceneMainMenu extends Phaser.Scene {
       if (this.isAutoSpin && !this.panel.isLocked) this.handleStartSpin();
     });
 
+    this.events.on('CHANGE_MUSIC', (isEnabled) => {
+      if (this.bgMusic) {
+        this.bgMusic.setMute(!isEnabled);
+      }
+    });
+
+    this.events.on('CHANGE_SOUND', (isEnabled) => {
+      this.registry.set('isSoundEnabled', isEnabled);
+    });
     this.events.on(GameEvents.GAME.SHOW_POPUP, (type, data) => this.popupManager.show(type, data));
     this.events.on(GameEvents.UI.OPEN_PAYTABLE, () => this.popupManager.show('PAYTABLE'));
     this.events.on('INSUFFICIENT_FUNDS', () => this.popupManager.show('NOTIFY', 'НЕДОСТАТОЧНО СРЕДСТВ'));

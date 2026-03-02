@@ -34,7 +34,10 @@ export default class Button extends Phaser.GameObjects.Container {
 
     this.image.on('pointerdown', () => {
       if (this.isLocked) return;
-      this.scene.sound.play('click_sound', { volume: 0.5 });
+      const isSoundEnabled = this.scene.registry.get('isSoundEnabled') !== false;
+      if (isSoundEnabled) {
+        this.scene.sound.play('click_sound', { volume: 0.5 });
+      }
 
       this.image.setFrame(this.frames.pressed);
 
